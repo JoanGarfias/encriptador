@@ -829,4 +829,5 @@ import { Head, Link } from '@inertiajs/vue3';
         </div>
         <div class="hidden h-14.5 lg:block"></div>
     </div>
+
 </template>
