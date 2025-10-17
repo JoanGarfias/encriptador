@@ -87,7 +87,7 @@ class Encriptar extends Controller
         }
 
         return response()->json([
-            'resultados' => base64_encode($result)
+            'resultados' => $result
         ]);
     }
 }
