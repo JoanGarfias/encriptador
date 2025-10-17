@@ -26,6 +26,7 @@ class Encriptar extends Controller
     {
         $text = $request->input('texto');
         $key = $this->generarKey();
+        $keyFormat = implode('', $key);
         $keyLength = count($key);
         $result = '';
 
@@ -51,7 +52,7 @@ class Encriptar extends Controller
         }
 
         return response()->json([
-            'key' => $key,
+            'key' => $keyFormat,
             'resultados' => base64_encode($result) // seguro para JSON y JS
         ]);
     }
