@@ -15,7 +15,8 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::factory(10)->create()->each(function ($user) {
-            Encriptados::factory()->create(['user_id' => $user->id]);
+            $textosEncriptados = rand(1, 10);
+            Encriptados::factory($textosEncriptados)->create(['user_id' => $user->id]);
         });
     }
 }
