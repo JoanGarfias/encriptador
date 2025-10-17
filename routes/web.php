@@ -2,15 +2,15 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Encriptar; 
-use App\Http\Controllers\Encriptar2; 
+use App\Http\Controllers\Encriptar;
+use App\Http\Controllers\Encriptar2;
 use Inertia\Inertia;
 use App\Http\Controllers\HistoryController;
 
 
 
 Route::get('/', function(){
-    return View('Prueba');
+    return Inertia::render('Welcome');
 });
 
 Route::get('/test', function(){
