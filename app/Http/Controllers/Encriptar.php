@@ -53,7 +53,7 @@ class Encriptar extends Controller
 
         return response()->json([
             'key' => $keyFormat,
-            'resultados' => base64_encode($result) // seguro para JSON y JS
+            'texto_encriptado' => base64_encode($result) // seguro para JSON y JS
         ]);
     }
 
