@@ -49,4 +49,9 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
+
+    public function encriptados()
+    {
+        return $this->hasMany(Encriptados::class);
+    }
 }
