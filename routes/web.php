@@ -24,11 +24,12 @@ Route::get('dashboard', function () {
 
 Route::get('/historial', [HistoryController::class, 'getHistory']);
 
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';
+
 //encriptar
 Route::post('/encriptar', [Encriptar::class, 'encriptar']);
 Route::post('/desencriptar', [Encriptar::class, 'desencriptar']);
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
 Route::post('/encriptar2', [Encriptar2::class, 'uploadFile']);
 Route::get('/downloads/{filename}', [Encriptar2::class, 'downloadFile'])->name('download.file');
