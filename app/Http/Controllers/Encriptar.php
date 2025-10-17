@@ -61,7 +61,7 @@ class Encriptar extends Controller
     public function desencriptar(Request $request)
     {
         $key = str_split($request->input('key')); // string → array
-        $text = base64_decode($request->input('texto')); // decodifica Base64
+        $text = base64_decode($request->input('texto_encriptado')); // decodifica Base64
         $keyLength = count($key);
         $result = '';
 
@@ -87,7 +87,7 @@ class Encriptar extends Controller
         }
 
         return response()->json([
-            'resultados' => $result
+            'texto_desencriptado' => $result
         ]);
     }
 }
