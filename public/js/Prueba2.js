@@ -18,7 +18,6 @@ document.getElementById("encryptBtn").addEventListener("click", () => {
     .then(data => {
         const linkDiv = document.getElementById('download');
 
-        // Build download URL pointing to the new controller route
         const downloadUrl = `/downloads/${encodeURIComponent(data.filename)}`;
         const downloadUrlKey = `/downloads/${encodeURIComponent(data.key)}`;
 
@@ -28,26 +27,37 @@ document.getElementById("encryptBtn").addEventListener("click", () => {
     })
     .catch(err => console.error('Error:', err));
 });
+
 document.getElementById("decryptBtn").addEventListener("click", () => {
-    let encrypted = document.getElementById("inputEncrypted").value;
-    let keyStr = document.getElementById("inputKey").value;
+    const fileInput = document.getElementById("textoEncriptado");
+    const archivo = fileInput.files[0];
 
-    if (!encrypted || !keyStr) return alert("Introduce el texto y la llave");
+    const llave = document.getElementById("inputKey");
+    const archivoLlave = llave.files[0];
 
-    fetch('/desencriptar', {
+    if (!archivo) return alert("Ingresa un archivo para desencriptar");
+    if (!archivoLlave) return alert("Ingresa la llave del archivo a desencriptar");
+
+    const formData = new FormData();
+    formData.append("user_file", archivo);
+    formData.append("user_key", archivoLlave);
+
+    fetch('/desencriptar2', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         },
-        body: JSON.stringify({
-            texto: encrypted,
-            key: keyStr
-        })
+        body: formData
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById("decryptedText").value = atob(data.resultados);
+        const linkDiv = document.getElementById('downloadDecrypted');
+
+        // Build download URL pointing to the new controller route
+        const downloadUrl = `/downloads/${encodeURIComponent(data.filename)}`;
+
+        linkDiv.innerHTML = `<a href="${downloadUrl}" download>Descargar archivo desencriptado</a>`;
+
     })
     .catch(err => console.error('Error:', err));
 });

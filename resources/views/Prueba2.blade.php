@@ -18,12 +18,12 @@
   <hr>
 
   <h2>🔓 Desencriptar</h2>
-  <textarea id="inputEncrypted" rows="4" cols="50" placeholder="Pega el texto encriptado aquí..."></textarea><br>
-  <input type="text" id="inputKey" placeholder="Introduce la llave"><br>
+  <input type="file" id="textoEncriptado" required><p>Sube el archivo con el texto encriptado</p>
+  <input type="file" id="inputKey" required><p>Sube la llave del texto encriptado</p>
   <button id="decryptBtn">Desencriptar</button>
   <div>
     <p><strong>Texto Desencriptado:</strong></p>
-    <textarea id="decryptedText" rows="4" cols="50" readonly></textarea>
+    <a id="downloadDecrypted" href="" download></a>
   </div>
 
   <script src="{{ asset('js/Prueba2.js') }}"></script>
