@@ -51,9 +51,13 @@ document.getElementById("decryptBtn").addEventListener("click", () => {
     })
     .then(res => res.json())
     .then(data => {
-        const linkDiv = document.getElementById('downloadDecrypted');
 
-        // Build download URL pointing to the new controller route
+        if (!data || !data.filename) {
+            console.error("No filename in response:", data);
+            return;
+        }
+
+        const linkDiv = document.getElementById('downloadDecrypted');
         const downloadUrl = `/downloads/${encodeURIComponent(data.filename)}`;
 
         linkDiv.innerHTML = `<a href="${downloadUrl}" download>Descargar archivo desencriptado</a>`;

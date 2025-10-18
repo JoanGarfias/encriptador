@@ -84,7 +84,7 @@ class Encriptar2 extends Controller
     $fileName = 'my_decrypted_file_' . time() . '.txt';
     $filePath = 'downloads/' . $fileName;
     Storage::disk('public')->put($filePath, $texto);
-
+    Log::debug($fileName);
 
     return [
         'filename' => $fileName,
