@@ -86,13 +86,17 @@ const archivos = [
               <TableRow v-for="archivo in archivos" :key="archivo.id">
                 <TableCell>{{ new Date(archivo.created_at).toLocaleString('es-MX') }}</TableCell>
                 <TableCell>
-                  <Button variant="outline" size="sm" @click="() => window.open(archivo.content_url)">
-                    Descargar contenido
+                  <Button variant="outline" size="sm" as-child>
+                    <a :href="archivo.content_url" download>
+                      Descargar contenido
+                    </a>
                   </Button>
                 </TableCell>
                 <TableCell>
-                  <Button variant="outline" size="sm" @click="() => window.open(archivo.key_url)">
-                    Descargar key
+                  <Button variant="outline" size="sm" as-child>
+                    <a :href="archivo.key_url" download>
+                      Descargar key
+                    </a>
                   </Button>
                 </TableCell>
               </TableRow>
