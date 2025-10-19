@@ -21,14 +21,18 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-
+/*
 Route::get('/historial', [HistoryController::class, 'getHistory']);
+*/
 
-
-
+/*
 Route::get('/history', [HistoryController::class, 'index'])->name('index');
 Route::get('/history/{id}/download', [HistoryController::class, 'downloadKey'])->name('download.key');
+*/
 
+Route::get('/history', function () {
+    return Inertia::render('Historial');
+});
 
 
 require __DIR__.'/settings.php';
