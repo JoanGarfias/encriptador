@@ -20,10 +20,10 @@ defineProps<{
 
 <template>
     <AuthBase
-        title="Log in to your account"
-        description="Enter your email and password below to log in"
+        title="Ingresa con tu cuenta"
+        description="Ingresa con tu email y contraseña para acceder a tu cuenta."
     >
-        <Head title="Log in" />
+        <Head title="Ingresar" />
 
         <div
             v-if="status"
@@ -40,7 +40,7 @@ defineProps<{
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
+                    <Label for="email">Correo electrónico</Label>
                     <Input
                         id="email"
                         type="email"
@@ -49,7 +49,7 @@ defineProps<{
                         autofocus
                         :tabindex="1"
                         autocomplete="email"
-                        placeholder="email@example.com"
+                        placeholder="correo@ejemplo.com"
                     />
                     <InputError :message="errors.email" />
                 </div>
@@ -63,7 +63,7 @@ defineProps<{
                             class="text-sm"
                             :tabindex="5"
                         >
-                            Forgot password?
+                            Olvidaste tu contraseña?
                         </TextLink>
                     </div>
                     <Input
@@ -73,7 +73,7 @@ defineProps<{
                         required
                         :tabindex="2"
                         autocomplete="current-password"
-                        placeholder="Password"
+                        placeholder="Tu contraseña"
                     />
                     <InputError :message="errors.password" />
                 </div>
@@ -81,7 +81,7 @@ defineProps<{
                 <div class="flex items-center justify-between">
                     <Label for="remember" class="flex items-center space-x-3">
                         <Checkbox id="remember" name="remember" :tabindex="3" />
-                        <span>Remember me</span>
+                        <span>Recordar mi sesión</span>
                     </Label>
                 </div>
 
@@ -96,13 +96,13 @@ defineProps<{
                         v-if="processing"
                         class="h-4 w-4 animate-spin"
                     />
-                    Log in
+                    Ingresar
                 </Button>
             </div>
 
             <div class="text-center text-sm text-muted-foreground">
-                Don't have an account?
-                <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
+                ¿ No tienes una cuenta ?
+                <TextLink :href="register()" :tabindex="5">Create una cuenta</TextLink>
             </div>
         </Form>
     </AuthBase>
