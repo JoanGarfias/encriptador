@@ -5,10 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { Head, Link } from '@inertiajs/vue3';
 
 // Refs for UI state
+const isMenuOpen = ref(false);
 const activeTab = ref('encrypt');
 const encryptFile = ref<File | null>(null);
 const decryptFile = ref<File | null>(null);
@@ -106,7 +108,7 @@ const copyToClipboard = () => {
             <h1 class="text-2xl font-bold">Unicripter</h1>
           </div>
 
-          <!-- Right: Auth buttons -->
+          <!-- Desktop: Auth buttons -->
           <div class="hidden sm:flex sm:items-center sm:space-x-3">
             <Link href="/login">
               <Button>Iniciar sesión</Button>
@@ -115,6 +117,29 @@ const copyToClipboard = () => {
               <Button variant="secondary">Registrarse</Button>
             </Link>
           </div>
+
+          <!-- Mobile: Menu button and drawer -->
+          <Sheet v-model:open="isMenuOpen" class="sm:hidden">
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" class="sm:hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                <span class="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" class="w-[300px] sm:hidden">
+              <SheetHeader>
+                <SheetTitle>Menú</SheetTitle>
+              </SheetHeader>
+              <div class="flex flex-col space-y-4 mt-4">
+                <Link href="/login">
+                  <Button class="w-full">Iniciar sesión</Button>
+                </Link>
+                <Link href="/register">
+                  <Button variant="secondary" class="w-full">Registrarse</Button>
+                </Link>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </nav>
