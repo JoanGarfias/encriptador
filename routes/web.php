@@ -24,8 +24,6 @@ Route::get('dashboard', function () {
 
 Route::get('/historial', [HistoryController::class, 'getHistory']);
 
-// POST /descargar-contenido
-// POST /descargar-clave
 
 
 Route::get('/history', [HistoryController::class, 'index'])->name('index');
