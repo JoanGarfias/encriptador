@@ -27,8 +27,10 @@ defineProps<Props>();
                     <SidebarMenuButton
                         class="text-neutral-600 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
                         as-child
+                        @click="item.onClick && item.onClick()"
                     >
                         <a
+                            v-if="!item.onClick"
                             :href="toUrl(item.href)"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -36,6 +38,10 @@ defineProps<Props>();
                             <component :is="item.icon" />
                             <span>{{ item.title }}</span>
                         </a>
+                        <button v-else type="button" class="w-full flex items-center">
+                            <component :is="item.icon" />
+                            <span>{{ item.title }}</span>
+                        </button>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
