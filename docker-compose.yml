@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  unicripter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unicripter
+    expose:
+      - "9900"
+    networks:
+      - dxired
+
+networks:
+  dxired:
+    external: true
