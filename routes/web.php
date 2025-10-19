@@ -13,6 +13,10 @@ Route::get('/', function(){
     return Inertia::render('Welcome');
 });
 
+Route::get('/perfil', function () {
+    return Inertia::render('Profile');
+})->middleware(['auth'])->name('profile');
+
 Route::get('/test', function(){
     return View('Prueba2');
 });

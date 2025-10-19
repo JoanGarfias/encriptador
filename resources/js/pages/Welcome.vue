@@ -7,8 +7,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { onMounted } from 'vue';
+
+const props = defineProps<{
+  auth: {
+    user: null | {
+      id: number;
+      name: string;
+      email: string;
+    };
+  };
+}>();
+
+const handleAuthClick = (path: string) => {
+  if (props.auth.user) {
+    router.visit('/perfil');
+  } else {
+    router.visit(path);
+  }
+};
 
 // Refs for UI state
 const isMenuOpen = ref(false);
@@ -154,12 +172,12 @@ const copyToClipboard = () => {
                 </svg>
               </span>
             </button>
-            <Link href="/login">
-              <Button>Iniciar sesión</Button>
-            </Link>
-            <Link href="/register">
-              <Button variant="secondary">Registrarse</Button>
-            </Link>
+            <Button @click="handleAuthClick('/login')">
+              {{ auth.user ? 'Ir a perfil' : 'Iniciar sesión' }}
+            </Button>
+            <Button v-if="!auth.user" variant="secondary" @click="handleAuthClick('/register')">
+              Registrarse
+            </Button>
           </div>
 
           <!-- Mobile: Menu button and drawer -->
@@ -179,12 +197,12 @@ const copyToClipboard = () => {
                   <span v-if="theme === 'light'">Modo oscuro</span>
                   <span v-else>Modo claro</span>
                 </button>
-                <Link href="/login">
-                  <Button class="w-full">Iniciar sesión</Button>
-                </Link>
-                <Link href="/register">
-                  <Button variant="secondary" class="w-full">Registrarse</Button>
-                </Link>
+                <Button class="w-full" @click="handleAuthClick('/login')">
+                  {{ auth.user ? 'Ir a perfil' : 'Iniciar sesión' }}
+                </Button>
+                <Button v-if="!auth.user" variant="secondary" class="w-full" @click="handleAuthClick('/register')">
+                  Registrarse
+                </Button>
               </div>
             </SheetContent>
           </Sheet>

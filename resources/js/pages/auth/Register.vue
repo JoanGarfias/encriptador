@@ -5,10 +5,14 @@ import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import AuthBase from '@/layouts/AuthLayout.vue';
+import { ref } from 'vue';
 import { login } from '@/routes';
 import { Form, Head } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
+
+const showSuccess = ref(false);
 </script>
 
 <template>
@@ -18,11 +22,19 @@ import { LoaderCircle } from 'lucide-vue-next';
     >
         <Head title="Register" />
 
+        <Alert v-if="showSuccess" class="mb-6 border-green-500 bg-green-50 dark:bg-green-900/10">
+            <AlertTitle>¡Registro exitoso!</AlertTitle>
+            <AlertDescription>
+                Tu cuenta ha sido creada correctamente. Serás redirigido al inicio de sesión.
+            </AlertDescription>
+        </Alert>
+
         <Form
             v-bind="RegisteredUserController.store.form()"
             :reset-on-success="['password', 'password_confirmation']"
             v-slot="{ errors, processing }"
             class="flex flex-col gap-6"
+            @success="showSuccess = true"
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
@@ -41,7 +53,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
+                    <Label for="email">Correo electrónico</Label>
                     <Input
                         id="email"
                         type="email"
@@ -55,7 +67,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password">Password</Label>
+                    <Label for="password">Contraseña</Label>
                     <Input
                         id="password"
                         type="password"
@@ -69,7 +81,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirm password</Label>
+                    <Label for="password_confirmation">Confirma tu contraseña</Label>
                     <Input
                         id="password_confirmation"
                         type="password"
@@ -107,5 +119,6 @@ import { LoaderCircle } from 'lucide-vue-next';
                 >
             </div>
         </Form>
+        <Toaster />
     </AuthBase>
 </template>
