@@ -18,10 +18,9 @@ jobs:
       - name: 2. Ejecutar despliegue en el servidor vía SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          # Es mucho más seguro usar una clave SSH que una contraseña
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.SV_IP }}
+          username: ${{ secrets.SV_USER }}
+          password: ${{ secrets.SV_PASSWORD }}
           script: |
             cd /var/www/tiven/tiven-back
 
