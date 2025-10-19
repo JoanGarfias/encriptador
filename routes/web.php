@@ -21,19 +21,10 @@ Route::get('/test', function(){
     return View('Prueba2');
 });
 
-/*
-Route::get('/historial', [HistoryController::class, 'getHistory']);
-*/
 
-/*
-Route::get('/history', [HistoryController::class, 'index'])->name('index');
-Route::get('/history/{id}/download', [HistoryController::class, 'downloadKey'])->name('download.key');
-*/
 
-Route::get('/history', function () {
-    return Inertia::render('Historial');
-});
-
+Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
+Route::get('/history/download/{id}', [HistoryController::class, 'downloadKey'])->name('history.download');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

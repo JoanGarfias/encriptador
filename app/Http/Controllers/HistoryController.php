@@ -5,15 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\HistoryRequest;
 use App\Models\Encriptados;
 use Illuminate\Http\Request;
+use Inertia\Inertia; // ✅ IMPORTANTE
 
 class HistoryController extends Controller
 {
     public function getHistory(HistoryRequest $request)
     {
-        /*
-       perPage: indica el número de elementos que se quiere visuaiza
-       page: indica la página que se quiere visualizar
-        */
         $inputs = $request->validated();
 
         $data = Encriptados::select('id', 'content', 'created_at')
@@ -32,7 +29,11 @@ class HistoryController extends Controller
                             ->paginate($perPage, ['*'], 'page', $page)
                             ->appends(['perPage' => $perPage]);
 
-        return view('index', compact('data', 'perPage'));
+        // ✅ Aquí mandamos los datos al componente Vue
+        return Inertia::render('Historial', [
+            'data' => $data,
+            'perPage' => $perPage,
+        ]);
     }
 
     public function downloadKey($id)
@@ -52,5 +53,4 @@ class HistoryController extends Controller
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
-
 }
