@@ -63,11 +63,36 @@ const showEncryptSuccessModal = ref(false);
 const showDecryptSuccessModal = ref(false);
 const decryptedText = ref('Este es el texto desencriptado de prueba.');
 
+const isDragging = ref(false);
+const fileName = ref('');
+
+const handleDrop = (e: DragEvent) => {
+  e.preventDefault();
+  isDragging.value = false;
+  const file = e.dataTransfer?.files?.[0];
+  if (file && file.type === 'text/plain') {
+    encryptFile.value = file;
+    fileName.value = file.name;
+  } else {
+    alert('Por favor, selecciona un archivo .txt');
+  }
+};
+
+const handleDragOver = (e: DragEvent) => {
+  e.preventDefault();
+  isDragging.value = true;
+};
+
+const handleDragLeave = () => {
+  isDragging.value = false;
+};
+
 // File handling
 const handleEncryptFileChange = (e: Event) => {
   const target = e.target as HTMLInputElement;
   if (target.files && target.files[0] && target.files[0].type === 'text/plain') {
     encryptFile.value = target.files[0];
+     fileName.value = target.files[0].name;
   } else {
     alert('Por favor, selecciona un archivo .txt');
     target.value = ''; // Reset input
@@ -230,19 +255,49 @@ const copyToClipboard = () => {
                 </TabsList>
 
                 <!-- Encrypt Panel -->
-                <TabsContent value="encrypt" class="mt-6">
-                    <div class="flex flex-col gap-4 rounded-lg border p-6">
-                        <h3 class="text-lg font-semibold">Subir archivo para encriptar</h3>
-                        <p class="text-sm text-muted-foreground">
-                            Arrastra o selecciona un archivo .txt para encriptarlo.
-                        </p>
-                        <Input id="encrypt-file" type="file" accept=".txt" @change="handleEncryptFileChange" />
-                        <Button @click="handleEncrypt" :disabled="isLoading || !encryptFile">
-                            {{ isLoading ? 'Procesando...' : 'Subir y Encriptar' }}
-                        </Button>
-                        <Progress v-if="isLoading" v-model="progress" class="w-full mt-2" />
+              <TabsContent value="encrypt" class="mt-6">
+                  <div class="flex flex-col gap-4 rounded-lg border p-6 shadow-sm bg-white dark:bg-gray-900 transition-all">
+                    <h3 class="text-lg font-semibold">Seleccionar archivo para encriptar</h3>
+                    <p class="text-sm text-muted-foreground">
+                      Arrastra tu archivo <strong>.txt</strong> aquí o haz clic para seleccionarlo.
+                    </p>
+
+                    <!-- Zona Drag & Drop -->
+                    <div
+                      class="flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-10 cursor-pointer transition-colors"
+                      :class="isDragging ? 'border-blue-500 bg-blue-50 dark:bg-gray-800' : 'border-gray-300 hover:border-blue-400'"
+                      @dragover="handleDragOver"
+                      @dragleave="handleDragLeave"
+                      @drop="handleDrop"
+                      @click="$refs.encryptInput.click()"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500 mb-3" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M3 15a4 4 0 014-4h10a4 4 0 010 8H7a4 4 0 01-4-4zM12 12V3m0 0l3.293 3.293M12 3L8.707 6.293" />
+                      </svg>
+
+                      <span v-if="!fileName" class="text-gray-600 dark:text-gray-300">Suelta tu archivo aquí</span>
+                      <span v-else class="text-green-600 dark:text-green-400 font-medium">{{ fileName }}</span>
+
+                      <input ref="encryptInput" id="encrypt-file" type="file" accept=".txt"
+                        class="hidden" @change="handleEncryptFileChange" />
                     </div>
-                </TabsContent>
+
+                    <!-- Botón Encriptar -->
+                    <Button @click="handleEncrypt" :disabled="isLoading || !encryptFile"
+                      class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium">
+                      {{ isLoading ? 'Encriptando...' : 'Subir y Encriptar' }}
+                    </Button>
+
+                    <!-- Barra de progreso -->
+                    <div v-if="isLoading" class="mt-3">
+                      <Progress v-model="progress" class="w-full" />
+                      <p class="text-center text-sm text-gray-500 mt-1">Procesando archivo...</p>
+                    </div>
+                  </div>
+              </TabsContent>
+
 
                 <!-- Decrypt Panel -->
                 <TabsContent value="decrypt" class="mt-6">
