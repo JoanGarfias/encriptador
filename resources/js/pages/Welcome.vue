@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 
 // Refs for UI state
 const activeTab = ref('encrypt');
@@ -94,6 +94,30 @@ const copyToClipboard = () => {
 
 <template>
     <Head title="Encriptador de Archivos" />
+
+    <nav class="w-full pt-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <!-- Left: Logo -->
+          <div class="flex-shrink-0">
+            <Link href="/">
+              <img src="/logo.png" alt="Logo" class="h-10 w-10" />
+            </Link>
+          </div>
+
+          <!-- Right: Auth buttons -->
+          <div class="hidden sm:flex sm:items-center sm:space-x-3">
+            <Link href="/login">
+              <Button>Iniciar sesión</Button>
+            </Link>
+            <Link href="/register">
+              <Button variant="secondary">Registrarse</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </nav>
+
     <div class="container mx-auto flex min-h-screen flex-col items-center justify-center p-4 md:p-8">
         <div class="w-full max-w-2xl">
             <!-- Title and Subtitle -->
@@ -102,7 +126,7 @@ const copyToClipboard = () => {
                     Tus archivos de texto encriptados de forma sencilla.
                 </h1>
                 <p class="mt-4 text-lg text-muted-foreground">
-                    Comienza a encriptar y desencriptar archivos de texto y almacenalos en la nube 100% gratis.
+                  Comienza a encriptar y desencriptar archivos de texto y almacenalos en la nube 100% gratis.
                 </p>
             </div>
 
