@@ -27,6 +27,12 @@ Route::get('/historial', [HistoryController::class, 'getHistory']);
 // POST /descargar-contenido
 // POST /descargar-clave
 
+
+Route::get('/history', [HistoryController::class, 'index'])->name('index');
+Route::get('/history/{id}/download', [HistoryController::class, 'downloadKey'])->name('download.key');
+
+
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
 
