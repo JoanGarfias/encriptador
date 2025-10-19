@@ -99,10 +99,11 @@ const copyToClipboard = () => {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
           <!-- Left: Logo -->
-          <div class="flex-shrink-0">
+          <div class="flex flex-row items-center space-x-3">
             <Link href="/">
-              <img src="/logo.png" alt="Logo" class="h-10 w-10" />
+              <img src="logo.png" alt="Logo" class="h-20 w-20" />
             </Link>
+            <h1 class="text-2xl font-bold">Unicripter</h1>
           </div>
 
           <!-- Right: Auth buttons -->

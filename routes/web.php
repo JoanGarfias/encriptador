@@ -24,8 +24,13 @@ Route::get('dashboard', function () {
 
 Route::get('/historial', [HistoryController::class, 'getHistory']);
 
+// POST /descargar-contenido
+// POST /descargar-clave
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
+
+
 
 //encriptar
 Route::post('/encriptar', [Encriptar::class, 'encriptar']);
