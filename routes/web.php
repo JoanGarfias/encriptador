@@ -31,5 +31,6 @@ require __DIR__.'/auth.php';
 Route::post('/encriptar', [Encriptar::class, 'encriptar']);
 Route::post('/desencriptar', [Encriptar::class, 'desencriptar']);
 
-Route::post('/encriptar2', [Encriptar2::class, 'uploadFile']);
+Route::post('/encriptar2', [Encriptar2::class, 'encriptarArchivo']);
+Route::post('/desencriptar2', [Encriptar2::class, 'desencriptarArchivo']);
 Route::get('/downloads/{filename}', [Encriptar2::class, 'downloadFile'])->name('download.file');

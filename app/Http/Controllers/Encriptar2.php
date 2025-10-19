@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Services\EncryptionService;
 
 class Encriptar2 extends Controller
 {
@@ -23,87 +24,29 @@ class Encriptar2 extends Controller
         return $key;
     }
 
-    // Encriptar texto
-    public function encriptar2($texto)
+    //Encriptacion de un archivo (se recibe un .txt normal)
+    public function encriptarArchivo(Request $request)
     {
-        $text = $texto;
-        $key = $this->generarKey();
-        $keyLength = count($key);
-        $result = '';
+    $request->validate([
+        'user_file' => 'required|file|mimes:txt',
+    ]);
+    $file = $request->file('user_file');
+    $content = file_get_contents($file->getRealPath());
+    $encryptionService = new EncryptionService();
 
-        for ($i = 0; $i < mb_strlen($text, 'UTF-8'); $i++) {
-            $c = mb_substr($text, $i, 1, 'UTF-8');
-            $ascii = mb_ord($c, 'UTF-8');
-            $k = (int)$key[$i % $keyLength];
+    $key = $this->generarKey();
+    $encriptado = $encryptionService->encriptar($content, implode($key));
 
-            switch ($k) {
-                case 1: $ascii += 9; break;
-                case 2: $ascii -= 1; break;
-                case 3: $ascii += 5; break;
-                case 4: $ascii -= 2; break;
-                case 5: $ascii += 1; break;
-                case 6: $ascii += 4; break;
-                case 7: $ascii -= 3; break;
-                case 8: $ascii += 2; break;
-                case 9: $ascii -= 5; break;
-                case 0: $ascii += 10; break;
-            }
-
-            $result .= mb_chr($ascii, 'UTF-8');
-        }
-
-         $fileData = $this->createAndDownloadFile($result, $key);
-
-        return response()->json([
-            'filename' => basename($fileData['filename']), 
-            'key' => $fileData['key']
-        ]);
+    return $this->createAndDownloadFile($encriptado, $key);
     }
-    /*
-    // Desencriptar texto
-    public function desencriptar(Request $request)
-    {
-        $key = str_split($request->input('key')); // string → array
-        $text = base64_decode($request->input('texto')); // decodifica Base64
-        $keyLength = count($key);
-        $result = '';
 
-        for ($i = 0; $i < mb_strlen($text, 'UTF-8'); $i++) {
-            $c = mb_substr($text, $i, 1, 'UTF-8');
-            $ascii = mb_ord($c, 'UTF-8');
-            $k = (int)$key[$i % $keyLength];
-
-            switch ($k) {
-                case 1: $ascii -= 9; break;
-                case 2: $ascii += 1; break;
-                case 3: $ascii -= 5; break;
-                case 4: $ascii += 2; break;
-                case 5: $ascii -= 1; break;
-                case 6: $ascii -= 4; break;
-                case 7: $ascii += 3; break;
-                case 8: $ascii -= 2; break;
-                case 9: $ascii += 5; break;
-                case 0: $ascii -= 10; break;
-            }
-
-            $result .= mb_chr($ascii, 'UTF-8');
-        }
-
-        return response()->json([
-            'resultados' => base64_encode($result)
-        ]);
-    }*/
-
+    //Envio de un .txt encriptado y un .key
     public function createAndDownloadFile($texto, $key)
     {
     $fileName = 'my_file_' . time() . '.txt';
-
     $filePath = 'downloads/' . $fileName;
-
     Storage::disk('public')->put($filePath, $texto);
-
     $fileNameKey = $fileName . '_key_' . time() . '.key';
-
     $filePathKey = 'downloads/' . $fileNameKey;
 
     
@@ -115,18 +58,40 @@ class Encriptar2 extends Controller
     ];
     }
 
-    public function uploadFile(Request $request)
+    //Desencriptacion de un archivo (se recibe un .txt encriptado y su .key)
+    public function desencriptarArchivo(Request $request)
     {
     $request->validate([
         'user_file' => 'required|file|mimes:txt',
     ]);
-
+    $request->validate([
+        'user_key' => 'required|file|mimes:txt',
+    ]);
     $file = $request->file('user_file');
     $content = file_get_contents($file->getRealPath());
+    $key = $request->file('user_key');
+    $contentKey = file_get_contents($key->getRealPath());
+    $encryptionService = new EncryptionService();
 
-    return $this->encriptar2($content);
+    $desencriptado = $encryptionService->desencriptar($content, $contentKey);
+
+    return $this->createAndDownloadFileDecrypted($desencriptado);
     }
 
+    //Envio de un .txt desencriptado
+    public function createAndDownloadFileDecrypted($texto)
+    {
+    $fileName = 'my_decrypted_file_' . time() . '.txt';
+    $filePath = 'downloads/' . $fileName;
+    Storage::disk('public')->put($filePath, $texto);
+    Log::debug($fileName);
+
+    return [
+        'filename' => $fileName,
+    ];
+    }
+
+    //Funcion para descargar archivos
     public function downloadFile($filename)
     {
     $filePath = storage_path('app/public/downloads/' . $filename);
