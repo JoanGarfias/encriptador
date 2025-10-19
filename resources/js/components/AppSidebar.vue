@@ -36,7 +36,7 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
-const footerNavItems: NavItem[] = [
+const footerNavItems = computed<NavItem[]>(() => [
     {
         title: theme.value === 'light' ? 'Modo Oscuro' : 'Modo Claro',
         href: '#',
@@ -48,7 +48,7 @@ const footerNavItems: NavItem[] = [
         href: 'https://github.com/JoanGarfias/encriptador',
         icon: Folder,
     },
-];
+]);
 </script>
 
 <template>
