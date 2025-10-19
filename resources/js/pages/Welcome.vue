@@ -252,8 +252,10 @@ const copyToClipboard = () => {
                            Sube el archivo .txt y el archivo .key correspondiente.
                         </p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Input id="decrypt-file" type="file" accept=".txt" @change="handleDecryptFileChange" />
-                            <Input id="key-file" type="file" accept=".key" @change="handleKeyFileChange" />
+                            <Input id="decrypt-file" type="file" accept=".txt" class="cursor-pointer bg-white border-neutral-300 hover:border-neutral-400 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-[1.01] active:scale-[0.99]"
+                            @change="handleDecryptFileChange"/>
+                           <Input id="key-file" type="file" accept=".key" class="cursor-pointer bg-white border-neutral-300 hover:border-neutral-400 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-[1.01] active:scale-[0.99]"
+                           @change="handleKeyFileChange"/>
                         </div>
                         <Button @click="handleDecrypt" :disabled="isLoading || !decryptFile || !keyFile">
                             {{ isLoading ? 'Procesando...' : 'Desencriptar Archivo' }}
