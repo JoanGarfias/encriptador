@@ -145,7 +145,7 @@ const copyToClipboard = () => {
           <!-- Left: Logo -->
           <div class="flex flex-row items-center space-x-3">
             <Link href="/">
-              <img src="logo.png" alt="Logo" class="h-20 w-20" />
+              <img src="logo2.png" alt="Logo" class="h-15 w-15" />
             </Link>
             <h1 class="text-2xl font-bold">Unicripter</h1>
           </div>
