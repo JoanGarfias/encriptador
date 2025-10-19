@@ -8,9 +8,33 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { Head, Link } from '@inertiajs/vue3';
+import { onMounted } from 'vue';
 
 // Refs for UI state
 const isMenuOpen = ref(false);
+const theme = ref<'light' | 'dark'>('light');
+
+const toggleTheme = () => {
+  theme.value = theme.value === 'light' ? 'dark' : 'light';
+  if (theme.value === 'dark') {
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  }
+};
+
+onMounted(() => {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') {
+    theme.value = 'dark';
+    document.documentElement.classList.add('dark');
+  } else {
+    theme.value = 'light';
+    document.documentElement.classList.remove('dark');
+  }
+});
 const activeTab = ref('encrypt');
 const encryptFile = ref<File | null>(null);
 const decryptFile = ref<File | null>(null);
@@ -110,6 +134,26 @@ const copyToClipboard = () => {
 
           <!-- Desktop: Auth buttons -->
           <div class="hidden sm:flex sm:items-center sm:space-x-3">
+            <button @click="toggleTheme" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+              <span v-if="theme === 'light'" aria-hidden>
+                <!-- moon icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.293 13.293A8 8 0 116.707 2.707a7 7 0 0010.586 10.586z"/></svg>
+              </span>
+              <span v-else aria-hidden>
+                <!-- clearer sun icon (Heroicons outline) -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="4"></circle>
+                  <path d="M12 2v2"></path>
+                  <path d="M12 20v2"></path>
+                  <path d="M4.93 4.93l1.41 1.41"></path>
+                  <path d="M17.66 17.66l1.41 1.41"></path>
+                  <path d="M2 12h2"></path>
+                  <path d="M20 12h2"></path>
+                  <path d="M4.93 19.07l1.41-1.41"></path>
+                  <path d="M17.66 6.34l1.41-1.41"></path>
+                </svg>
+              </span>
+            </button>
             <Link href="/login">
               <Button>Iniciar sesión</Button>
             </Link>
@@ -131,6 +175,10 @@ const copyToClipboard = () => {
                 <SheetTitle>Menú</SheetTitle>
               </SheetHeader>
               <div class="flex flex-col space-y-4 mt-4">
+                <button @click="toggleTheme" class="p-2 rounded-md text-left">
+                  <span v-if="theme === 'light'">Modo oscuro</span>
+                  <span v-else>Modo claro</span>
+                </button>
                 <Link href="/login">
                   <Button class="w-full">Iniciar sesión</Button>
                 </Link>
