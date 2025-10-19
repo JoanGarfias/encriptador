@@ -13,8 +13,8 @@ import { LoaderCircle } from 'lucide-vue-next';
 
 <template>
     <AuthBase
-        title="Create an account"
-        description="Enter your details below to create your account"
+        title="Crea una cuenta."
+        description="Comienza a encriptar y desencriptar tus archivos de texto de forma segura."
     >
         <Head title="Register" />
 
@@ -26,7 +26,7 @@ import { LoaderCircle } from 'lucide-vue-next';
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="name">Name</Label>
+                    <Label for="name">Nombre</Label>
                     <Input
                         id="name"
                         type="text"
@@ -35,7 +35,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                         :tabindex="1"
                         autocomplete="name"
                         name="name"
-                        placeholder="Full name"
+                        placeholder="Nombre completo"
                     />
                     <InputError :message="errors.name" />
                 </div>
@@ -49,7 +49,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                         :tabindex="2"
                         autocomplete="email"
                         name="email"
-                        placeholder="email@example.com"
+                        placeholder="correo@ejemplo.com"
                     />
                     <InputError :message="errors.email" />
                 </div>
@@ -63,7 +63,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                         :tabindex="3"
                         autocomplete="new-password"
                         name="password"
-                        placeholder="Password"
+                        placeholder="Tu contraseña"
                     />
                     <InputError :message="errors.password" />
                 </div>
@@ -77,7 +77,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                         :tabindex="4"
                         autocomplete="new-password"
                         name="password_confirmation"
-                        placeholder="Confirm password"
+                        placeholder="Confirma tu contraseña"
                     />
                     <InputError :message="errors.password_confirmation" />
                 </div>
@@ -93,17 +93,17 @@ import { LoaderCircle } from 'lucide-vue-next';
                         v-if="processing"
                         class="h-4 w-4 animate-spin"
                     />
-                    Create account
+                    Crear mi cuenta
                 </Button>
             </div>
 
             <div class="text-center text-sm text-muted-foreground">
-                Already have an account?
+                ¿Ya tienes una cuenta?
                 <TextLink
                     :href="login()"
                     class="underline underline-offset-4"
                     :tabindex="6"
-                    >Log in</TextLink
+                    >Ingresa ahora</TextLink
                 >
             </div>
         </Form>
