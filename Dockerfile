@@ -1,19 +1,42 @@
-FROM php:8.4-fpm
+FROM node:20-alpine AS frontend
 
-RUN apt-get update && apt-get install -y \
-    git unzip libzip-dev libonig-dev default-mysql-client \
-    && docker-php-ext-install pdo pdo_mysql zip mbstring
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+FROM composer:2 AS vendor
+
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --optimize-autoloader
+
+FROM php:8.3-fpm-alpine
 
 WORKDIR /var/www/html
 
-COPY composer.json composer.lock ./
-
-RUN composer install --no-scripts
+RUN apk add --no-cache \
+        nginx \
+        supervisor \
+        libzip-dev \
+        libpng-dev \
+        jpeg-dev \
+        freetype-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql zip gd exif
 
 COPY . .
 
-RUN composer dump-autoload
+COPY --from=vendor /app/vendor/ /var/www/html/vendor/
+COPY --from=frontend /app/public/build/ /var/www/html/public/build/
+
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+RUN php artisan config:cache
+RUN php artisan route:cache
+RUN php artisan view:cache
 
 CMD ["php-fpm"]
