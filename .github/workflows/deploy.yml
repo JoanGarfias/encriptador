@@ -1,6 +1,5 @@
 name: Despliegue a Producción
 
-# Se activa con cada push a la rama 'main'
 on:
   push:
     branches:
@@ -22,7 +21,7 @@ jobs:
           username: ${{ secrets.SV_USER }}
           password: ${{ secrets.SV_PASSWORD }}
           script: |
-            cd /var/www/tiven/tiven-back
+            cd /var/www/encriptador
 
             echo "-> Activando modo mantenimiento..."
             docker compose -f docker-compose.yml exec app php artisan down || true
