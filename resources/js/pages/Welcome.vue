@@ -340,7 +340,7 @@ const handleKeyDrop = (event) => {
 
                     <!-- Botón Encriptar -->
                     <Button @click="handleEncrypt" :disabled="isLoading || !encryptFile"
-                      class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium">
+                      class="mt-4 w-full bg-yellow-700 hover:bg-yellow-800 text-white font-medium">
                       {{ isLoading ? 'Encriptando...' : 'Subir y Encriptar' }}
                     </Button>
 
@@ -407,7 +407,8 @@ const handleKeyDrop = (event) => {
             <Button
               @click="handleDecrypt"
               :disabled="isLoading || !decryptFile || !keyFile"
-              class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
+             class="mt-4 w-full bg-yellow-700 hover:bg-yellow-800 text-white font-medium"
+
             >
               {{ isLoading ? 'Procesando...' : 'Desencriptar Archivo' }}
             </Button>
