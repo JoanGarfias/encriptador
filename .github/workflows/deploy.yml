@@ -22,7 +22,7 @@ jobs:
 
             cd /var/www/encriptador
 
-            docker compose exec app php artisan down || true
+            docker compose exec unicripter php artisan down || true
 
             echo "-> Actualizando código desde Git de forma segura..."
             git fetch origin main
