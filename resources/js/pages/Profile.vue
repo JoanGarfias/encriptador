@@ -8,6 +8,22 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import { onMounted, ref, computed, watch } from 'vue'
 import axios from 'axios'
 
+// --- Tema oscuro / claro ---
+const theme = ref<'light' | 'dark'>('light')
+const isMenuOpen = ref(false)
+
+const toggleTheme = () => {
+  theme.value = theme.value === 'light' ? 'dark' : 'light'
+  document.documentElement.classList.toggle('dark', theme.value === 'dark')
+  localStorage.setItem('theme', theme.value)
+}
+
+onMounted(() => {
+  const saved = localStorage.getItem('theme')
+  theme.value = saved === 'dark' ? 'dark' : 'light'
+  document.documentElement.classList.toggle('dark', theme.value === 'dark')
+})
+
 defineProps<{
   auth: {
     user: {
@@ -81,6 +97,18 @@ const paginatedData = computed(() => archivos.value)
 <template>
   <AppLayout>
     <Head title="Mi Perfil" />
+
+<!-- Botón de cambio de tema -->
+<div class="flex justify-end px-4 pt-4">
+  <Button
+    variant="outline"
+    size="sm"
+    class="hover:bg-primary/10 hover:text-primary"
+    @click="toggleTheme"
+  >
+    {{ theme === 'light' ? '🌜' : '☀️' }}
+  </Button>
+</div>
 
     <div class="container mx-auto py-8 space-y-6">
       <!-- Perfil -->
@@ -194,22 +222,18 @@ const paginatedData = computed(() => archivos.value)
             class="mt-6 flex justify-center items-center flex-wrap gap-2"
           >
             <template v-for="(link, idx) in paginationLinks" :key="idx">
-              <a
+              <Button
                 v-if="link.url"
-                @click.prevent="
-                  link.url && goToPage(Number(link.url.split('page=')[1]))
-                "
-                href="#"
-                class="px-3 py-1 rounded border text-sm transition-all select-none"
-                :class="link.active
-                  ? 'bg-primary text-white border-primary shadow-sm'
-                  : 'text-primary bg-white hover:bg-primary/10 border-primary/30'"
+                variant="outline"
+                size="sm"
+                class="hover:bg-primary/10 hover:text-primary px-3 py-1"
+                @click.prevent="goToPage(Number(link.url.split('page=')[1]))"
+                :class="link.active ? 'bg-primary text-white border-primary shadow-sm' : ''"
                 v-html="link.label"
-              ></a>
-
+              />
               <span
                 v-else
-                class="px-3 py-1 rounded text-sm text-gray-400 select-none"
+                class="px-3 py-1 rounded text-sm text-muted-foreground select-none border border-border/40 bg-background"
                 v-html="link.label"
               ></span>
             </template>

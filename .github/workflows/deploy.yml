@@ -28,14 +28,14 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             echo "-> Reconstruyendo y reiniciando contenedor de la aplicación..."
-            docker compose up -d --build --remove-orphans
+            docker compose up -d --build --force-recreate --remove-orphans
 
             echo "-> Copiando archivo .env de producción al contenedor..."
             docker cp .env unicripter:/var/www/html/.env
             docker compose exec unicripter chown www-data:www-data /var/www/html/.env
 
             echo "-> Limpiando caché y ejecutando migraciones..."
-            docker compose exec unicripter php artisan migrate:fresh --force
+            docker compose exec unicripter php artisan migrate
             docker compose exec unicripter php artisan optimize:clear
 
             echo "-> Desactivando modo mantenimiento..."
