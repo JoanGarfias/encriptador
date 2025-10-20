@@ -27,11 +27,14 @@ jobs:
             echo "-> Actualizando código desde Git de forma segura..."
             git fetch origin main
             git reset --hard origin/main
+            echo "-> Reconstruyendo y reiniciando contenedor de la aplicación..."
+            docker compose up -d --build --remove-orphans
 
-                        echo "-> Reconstruyendo y reiniciando contenedor de la aplicación..."
-                        docker compose up -d --build --remove-orphans
+            echo "-> Copiando archivo .env de producción al contenedor..."
+            docker cp .env unicripter:/var/www/html/.env
 
-                        echo "-> Ejecutando comandos de optimización de Laravel..."             docker compose exec unicripter php artisan migrate --force
+            echo "-> Ejecutando comandos de optimización de Laravel..."
+            docker compose exec unicripter php artisan migrate --force
             docker compose exec unicripter php artisan optimize:clear
             docker compose exec unicripter php artisan optimize
 
