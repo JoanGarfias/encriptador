@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   unicripter:
     container_name: unicripter
@@ -19,7 +17,7 @@ services:
     expose:
       - "9900"
     volumes:
-      - storage:/var/www/html/storage
+      - ./:/var/www
     networks:
       - dxired
 

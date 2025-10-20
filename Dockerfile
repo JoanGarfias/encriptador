@@ -2,9 +2,8 @@
 # Empezamos con una imagen de PHP y le añadimos Node.js
 FROM php:8.3-fpm-alpine AS builder
 
-# Instalar dependencias del sistema: Composer, Node.js y extensiones de PHP
+# Instalar dependencias del sistema: Node.js y extensiones de PHP (sin PHP de Alpine)
 RUN apk add --no-cache \
-        composer \
         nodejs \
         npm \
         libzip-dev \
@@ -16,6 +15,9 @@ RUN apk add --no-cache \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" pdo_mysql zip gd exif dom opcache \
     && docker-php-source delete
+
+# Composer del contenedor oficial (para usar /usr/local/bin/php)
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /app
 
