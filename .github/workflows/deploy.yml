@@ -32,10 +32,13 @@ jobs:
 
             echo "-> Copiando archivo .env de producción al contenedor..."
             docker cp .env unicripter:/var/www/html/.env
+            docker compose exec unicripter chown www-data:www-data /var/www/html/.env
 
-            echo "-> Ejecutando comandos de optimización de Laravel..."
-            docker compose exec unicripter php artisan migrate --force
+            echo "-> Limpiando caché y ejecutando migraciones..."
             docker compose exec unicripter php artisan optimize:clear
+            docker compose exec unicripter php artisan migrate --force
+
+            echo "-> Optimizando la aplicación para producción..."
             docker compose exec unicripter php artisan optimize
 
             echo "-> Desactivando modo mantenimiento..."
