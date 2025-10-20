@@ -51,14 +51,6 @@ class Encriptar extends Controller
     //Envio de un .txt encriptado y un .key
     public function createAndDownloadFile($texto, $key, $id)
     {
-     
-    
-    /*$record = Encriptados::find($id);
-    if (! $record) {
-            Log::debug($id);   
-            abort(404);
-        }
-    $llave = $record->key;*/
 
     $registro = new Encriptados();
     $registro->user_id = $id;
@@ -76,7 +68,7 @@ class Encriptar extends Controller
     $filePath = 'downloads/' . $fileName;
     Storage::disk('public')->put($filePath, $texto);
 
-    $fileNameKey = $fileName . '_key_' . time() . '.key';
+    $fileNameKey = 'key_' . time() . '.key';
     $filePathKey = 'downloads/' . $fileNameKey;
     Storage::disk('public')->put($filePathKey, implode($key));
 
@@ -91,17 +83,17 @@ class Encriptar extends Controller
     {
     $request->validate([
         'user_file' => 'required|file|mimes:txt',
-        'user_key'  => 'required|file|mimes:key',
+        'user_key'  => 'required|file',
     ]);
-
+    Log::debug("potaxio");
     $file = $request->file('user_file');
     $content = file_get_contents($file->getRealPath());
     $key = $request->file('user_key');
     $contentKey = file_get_contents($key->getRealPath());
     $encryptionService = new EncryptionService();
-
+    
     $desencriptado = $encryptionService->desencriptar($content, $contentKey);
-
+    Log::debug($desencriptado);
     $response = $this->createAndDownloadFileDecrypted($desencriptado);
 
     return response()->json($response);

@@ -19,7 +19,7 @@ services:
     expose:
       - "9900"
     volumes:
-      - storage:/var/www/html/storage
+      - ./:/var/www
     networks:
       - dxired
 
