@@ -16,8 +16,8 @@ services:
       LOG_CHANNEL: stderr
     expose:
       - "9900"
-    # volumes:
-    #   - ./:/var/www # Deshabilitado para producción, la imagen es autocontenida
+    volumes:
+      - ./:/var/www
     networks:
       - dxired
 
