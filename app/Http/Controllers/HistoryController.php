@@ -7,6 +7,10 @@ use App\Models\Encriptados;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth; 
+
+
+
 
 class HistoryController extends Controller
 {
@@ -15,7 +19,7 @@ class HistoryController extends Controller
     $inputs = $request->validated();
 
     $query = Encriptados::select('id', 'user_id', 'content', 'created_at')
-                ->where('user_id', auth()->id());
+                ->where('user_id', Auth::id())
     Log::debug($request->query('search'));
     if (!empty($request->query('search'))) {
         $query->where('content', 'like', '%' . $request->query('search') . '%');
