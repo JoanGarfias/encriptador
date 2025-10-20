@@ -16,9 +16,9 @@ class HistoryController extends Controller
 
     $query = Encriptados::select('id', 'user_id', 'content', 'created_at')
                 ->where('user_id', auth()->id());
-
-    if (!empty($inputs['search'])) {
-        $query->where('content', 'like', '%' . $inputs['search'] . '%');
+    Log::debug($request->query('search'));
+    if (!empty($request->query('search'))) {
+        $query->where('content', 'like', '%' . $request->query('search') . '%');
     }
 
     $data = $query->orderBy('created_at', 'desc')
