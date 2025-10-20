@@ -186,15 +186,31 @@ const handleKeyFileChange = (e: Event) => {
 
 // --- Desencriptar archivo ---
 const handleDecrypt = async () => {
+  // Al pulsar "Desencriptar" sólo activamos una bandera que muestra
+  // un menú/diálogo de confirmación donde se realizará la descarga.
   if (!decryptFile.value || !keyFile.value) {
     alert('Selecciona el archivo .txt y .key para desencriptar.');
     return;
   }
 
-  if(!props.auth.user){
+  if (!props.auth.user) {
     alert('Por favor, inicie sesión para desencriptar su archivo.');
-    return;
-  }
+    return;
+  }
+
+  // Mostrar diálogo de confirmación/descarga
+  showDecryptConfirmation.value = true;
+};
+
+// Bandera para mostrar el diálogo de confirmación antes de enviar los archivos
+const showDecryptConfirmation = ref(false);
+
+// Ejecuta la petición que envía el .txt y .key a la ruta que devuelve el archivo desencriptado
+const performDecryptDownload = async () => {
+  if (!decryptFile.value || !keyFile.value) {
+    alert('Faltan archivos para desencriptar.');
+    return;
+  }
 
   const formData = new FormData();
   formData.append('user_file', decryptFile.value);
@@ -207,7 +223,6 @@ const handleDecrypt = async () => {
   }, 200);
 
   try {
-    // Enviar a la ruta que devuelve el archivo desencriptado como descarga
     const response = await fetch('/desencriptar/download', {
       method: 'POST',
       credentials: 'include',
@@ -218,23 +233,23 @@ const handleDecrypt = async () => {
     });
 
     if (!response.ok) {
-      // Try to read JSON error message if returned
       let errText = `Error ${response.status}: ${response.statusText}`;
       try {
         const json = await response.json();
         if (json && json.error) errText = json.error;
       } catch (e) {
-        // ignore json parse errors
+        // ignore
       }
       throw new Error(errText);
     }
 
-    // Recibimos el archivo como blob y forzamos la descarga
     const blob = await response.blob();
     const downloadUrl = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = downloadUrl;
-    a.download = `desencriptado_${Date.now()}.txt`;
+    // Usar nombre original del archivo con sufijo
+    const originalName = (decryptFile.value as File).name.replace(/\.txt$/i, '');
+    a.download = `${originalName || 'desencriptado'}_desencriptado.txt`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -242,7 +257,7 @@ const handleDecrypt = async () => {
 
     showDecryptSuccessModal.value = true;
     progress.value = 100;
-
+    showDecryptConfirmation.value = false;
   } catch (err) {
     console.error('Error al desencriptar:', err);
     alert('Ocurrió un error al desencriptar el archivo.');
@@ -543,6 +558,28 @@ const copyToClipboard = () => {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+
+        <!-- Decrypt Confirmation / Floating menu -->
+        <Dialog v-model:open="showDecryptConfirmation">
+          <DialogContent class="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Confirmar desencriptado</DialogTitle>
+              <DialogDescription>
+                Se enviará tu archivo encriptado y la llave al servidor. El servidor devolverá el archivo desencriptado como descarga.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div class="mt-4">
+              <p class="text-sm text-muted-foreground">Archivo .txt: <strong>{{ decryptFile ? decryptFile.name : '-' }}</strong></p>
+              <p class="text-sm text-muted-foreground">Archivo .key: <strong>{{ keyFile ? keyFile.name : '-' }}</strong></p>
+            </div>
+
+            <DialogFooter>
+              <Button variant="ghost" @click="showDecryptConfirmation = false">Cancelar</Button>
+              <Button class="ml-2" @click="performDecryptDownload" :disabled="isLoading">Descargar desencriptado</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
     </div>
 </template>
