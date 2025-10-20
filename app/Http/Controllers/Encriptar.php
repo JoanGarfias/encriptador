@@ -160,17 +160,7 @@ class Encriptar extends Controller
     }
 
     // Recibe un archivo encriptado y su key, desencripta y devuelve el archivo resultante como descarga
-    public function downloadDecryptedFromUpload(Request $request)
-    {
-        $request->validate([
-            'user_file' => 'required|file|mimes:txt',
-            'user_key'  => 'required|file',
-        ]);
-
-        return true;
-    }
-
-    function downloadDecrypted(Request $request){
+    public function downloadDecryptedFromUpload(Request $request){
         $request->validate([
             'user_file' => 'required|file|mimes:txt',
             'user_key'  => 'required|file',
@@ -184,11 +174,11 @@ class Encriptar extends Controller
 
         $encryptionService = new EncryptionService();
         $decrypted = $encryptionService->desencriptar($content, $contentKey);
-
+        Log::debug($decrypted);
         $filename = 'encriptado_' . $decrypted . '.txt';
 
-        return response()->streamDownload(function() use ($content) {
-            echo $content;
+        return response()->streamDownload(function() use ($decrypted) {
+            echo $decrypted;
         }, $filename, [
             'Content-Type' => 'text/plain'
         ]);
