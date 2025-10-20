@@ -11,42 +11,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 1. Checkout del repositorio
-        uses: actions/checkout@v3
-
-      - name: 2. Ejecutar despliegue en el servidor vía SSH
-        uses: appleboy/ssh-action@master
+      - name: Ejecutar despliegue en el servidor vía SSH
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SV_IP }}
           username: ${{ secrets.SV_USER }}
           password: ${{ secrets.SV_PASSWORD }}
           script: |
+            set -e
+
             cd /var/www/encriptador
 
-            echo "-> Activando modo mantenimiento..."
-            docker compose -f docker-compose.yml exec app php artisan down || true
+            docker compose exec app php artisan down || true
 
-            echo "-> Actualizando código desde Git..."
-            git checkout main
-            git pull origin main
+            echo "-> Actualizando código desde Git de forma segura..."
+            git fetch origin main
+            git reset --hard origin/main
 
-            echo "-> Reconstruyendo y reiniciando contenedores..."
-            docker compose -f docker-compose.yml up -d --build --remove-orphans
+            echo "-> Reconstruyendo y reiniciando contenedor de la aplicación..."
+            docker compose up -d --build --remove-orphans
 
-            # Esperar un momento para que el contenedor de la app esté listo
-            sleep 8
-
-            # 4. Ejecutar comandos post-despliegue dentro del contenedor
             echo "-> Ejecutando comandos de optimización de Laravel..."
-            docker compose -f docker-compose.yml exec app php artisan migrate --force
+            docker compose exec unicripter php artisan migrate --force
+            docker compose exec unicripter php artisan optimize:clear
+            docker compose exec unicripter php artisan optimize
 
-            docker compose -f docker-compose.yml exec app php artisan optimize
-
-            # 5. Quitar el modo mantenimiento
             echo "-> Desactivando modo mantenimiento..."
-            docker compose -f docker-compose.yml exec app php artisan up
+            docker compose exec unicripter php artisan up
 
             echo "-> Limpiando imágenes de Docker sin usar..."
-            docker image prune -f
+            docker image prune -a -f
 
             echo "✅ ¡Despliegue completado!"

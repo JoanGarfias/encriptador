@@ -50,7 +50,7 @@ class Encriptar extends Controller
     $fileName = 'my_file_' . time() . '.txt';
     $filePath = 'downloads/' . $fileName;
     Storage::disk('public')->put($filePath, $texto);
-    $fileNameKey = $fileName . '_key_' . time() . '.key';
+    $fileNameKey = 'key_' . time() . '.key';
     $filePathKey = 'downloads/' . $fileNameKey;
 
     
@@ -67,10 +67,9 @@ class Encriptar extends Controller
     {
     $request->validate([
         'user_file' => 'required|file|mimes:txt',
+        'user_key'  => 'required|file|mimes:key',
     ]);
-    $request->validate([
-        'user_key' => 'required|file|mimes:txt',
-    ]);
+
     $file = $request->file('user_file');
     $content = file_get_contents($file->getRealPath());
     $key = $request->file('user_key');
@@ -79,7 +78,11 @@ class Encriptar extends Controller
 
     $desencriptado = $encryptionService->desencriptar($content, $contentKey);
 
-    return $this->createAndDownloadFileDecrypted($desencriptado);
+    $response = $this->createAndDownloadFileDecrypted($desencriptado);
+
+    return response()->json($response);
+
+    //return $this->createAndDownloadFileDecrypted($desencriptado);
     }
 
     //Envio de un .txt desencriptado
