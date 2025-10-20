@@ -103,7 +103,7 @@ const handleEncrypt = async () => {
   }, 200);
 
   try {
-    const response = await fetch('/encriptar2', {
+    const response = await fetch('/encriptar', {
       method: 'POST',
       headers: {
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
@@ -182,7 +182,7 @@ const handleDecrypt = async () => {
   }, 200);
 
   try {
-    const response = await fetch('/desencriptar2', {
+    const response = await fetch('/desencriptar', {
       method: 'POST',
       headers: {
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
@@ -215,8 +215,6 @@ const copyToClipboard = () => {
   );
 };
 </script>
-
-
 
 <template>
     <Head title="Encriptador de Archivos" />
