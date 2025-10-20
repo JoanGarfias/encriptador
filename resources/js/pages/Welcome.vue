@@ -319,7 +319,9 @@ const handleKeyDrop = (event) => {
                     <!-- Zona Drag & Drop -->
                     <div
                       class="flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-10 cursor-pointer transition-colors"
-                      :class="isDragging ? 'border-blue-500 bg-blue-50 dark:bg-gray-800' : 'border-gray-300 hover:border-blue-400'"
+                      :class="isDragging 
+                        ? 'border-[#9a9563]' 
+                        : 'border-gray-300 hover:border-[#9a9563]'"
                       @dragover="handleDragOver"
                       @dragleave="handleDragLeave"
                       @drop="handleDrop"
@@ -366,13 +368,15 @@ const handleKeyDrop = (event) => {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Zona TXT -->
               <div
-                class="flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-10 cursor-pointer transition-colors"
-                :class="isDraggingTxt ? 'border-blue-500 bg-blue-50 dark:bg-gray-800' : 'border-gray-300 hover:border-blue-400'"
-                @dragover="isDraggingTxt = true"
-                @dragleave="isDraggingTxt = false"
-                @drop="handleTxtDrop"
-                @click="$refs.decryptTxtInput.click()"
-              >
+                  class="flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-10 cursor-pointer transition-colors"
+                  :class="isDraggingTxt 
+                    ? 'border-[#9a9563]' 
+                    : 'border-gray-300 hover:border-[#9a9563]'"
+                  @dragover="isDraggingTxt = true"
+                  @dragleave="isDraggingTxt = false"
+                  @drop="handleTxtDrop"
+                  @click="$refs.decryptTxtInput.click()"
+                >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500 mb-3" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -386,7 +390,9 @@ const handleKeyDrop = (event) => {
               <!-- Zona KEY -->
               <div
                 class="flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-10 cursor-pointer transition-colors"
-                :class="isDraggingKey ? 'border-blue-500 bg-blue-50 dark:bg-gray-800' : 'border-gray-300 hover:border-blue-400'"
+                :class="isDraggingKey 
+                  ? 'border-[#9a9563]' 
+                  : 'border-gray-300 hover:border-[#9a9563]'"
                 @dragover="isDraggingKey = true"
                 @dragleave="isDraggingKey = false"
                 @drop="handleKeyDrop"
