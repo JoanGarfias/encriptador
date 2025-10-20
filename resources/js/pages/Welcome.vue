@@ -439,6 +439,23 @@ const copyToClipboard = () => {
                     <DialogDescription>
                         Archivo encriptado correctamente.
                     </DialogDescription>
+                    <a
+                      v-if="encryptedFileName"
+                      :href="`/storage/downloads/${encryptedFileName}`"
+                      download
+                      class="block text-blue-600 hover:underline"
+                    >
+                      Descargar archivo encriptado
+                    </a>
+
+                    <a
+                      v-if="keyFileName"
+                      :href="`/storage/downloads/${keyFileName}`"
+                      download
+                      class="block text-green-600 hover:underline"
+                    >
+                      Descargar llave (.key)
+                    </a>
                 </DialogHeader>
                 <DialogFooter>
                     <Button @click="showEncryptSuccessModal = false">Cerrar</Button>
