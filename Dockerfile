@@ -8,8 +8,9 @@ RUN apk add --no-cache \
         libpng-dev \
         jpeg-dev \
         freetype-dev \
+        libxml2-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql zip gd exif
+    && docker-php-ext-install pdo pdo_mysql zip gd exif session fileinfo tokenizer dom
 
 WORKDIR /app
 
@@ -32,8 +33,9 @@ RUN apk add --no-cache \
         libpng-dev \
         jpeg-dev \
         freetype-dev \
+        libxml2-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql zip gd exif
+    && docker-php-ext-install pdo pdo_mysql zip gd exif session fileinfo tokenizer dom
 
 COPY --from=builder /app /var/www/html
 
