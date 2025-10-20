@@ -12,10 +12,9 @@ RUN apk add --no-cache \
         jpeg-dev \
         freetype-dev \
         libxml2-dev \
-        bison \
-        re2c \
     && docker-php-source extract \
-    && docker-php-ext-install pdo pdo_mysql zip gd exif session fileinfo tokenizer dom \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" pdo_mysql zip gd exif dom opcache \
     && docker-php-source delete
 
 WORKDIR /app
@@ -48,10 +47,9 @@ RUN apk add --no-cache \
         jpeg-dev \
         freetype-dev \
         libxml2-dev \
-        bison \
-        re2c \
     && docker-php-source extract \
-    && docker-php-ext-install pdo pdo_mysql zip gd exif session fileinfo tokenizer dom \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" pdo_mysql zip gd exif dom opcache \
     && docker-php-source delete
 
 # Copiar la aplicación ya construida desde la etapa "builder"
