@@ -13,7 +13,7 @@ class HistoryController extends Controller
     {
         $inputs = $request->validated();
 
-        $data = Encriptados::select('id', 'content', 'created_at')
+        $data = Encriptados::select('user_id', 'content', 'created_at')
                             ->paginate($inputs["perPage"]);
 
         return response()->json($data);
@@ -24,7 +24,7 @@ class HistoryController extends Controller
         $perPage = (int) $request->query('perPage', 10);
         $page = (int) $request->query('page', 1);
 
-        $data = Encriptados::select('id', 'content', 'created_at')
+        $data = Encriptados::select('user_id', 'content', 'created_at')
                             ->orderBy('created_at', 'desc')
                             ->paginate($perPage, ['*'], 'page', $page)
                             ->appends(['perPage' => $perPage]);
