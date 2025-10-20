@@ -58,6 +58,11 @@ const decryptedFileName = ref('');
 const isDragging = ref(false);
 const fileName = ref('');
 
+// refs para inputs (tipados) — usados en la plantilla para activar el selector de archivos
+const encryptInputRef = ref<HTMLInputElement | null>(null);
+const decryptTxtInputRef = ref<HTMLInputElement | null>(null);
+const keyInputRef = ref<HTMLInputElement | null>(null);
+
 
 const handleDrop = (e: DragEvent) => {
   e.preventDefault();
@@ -102,7 +107,8 @@ const handleEncrypt = async () => {
     alert('Por favor, inicie sesión para encriptar su archivo.');
     return;
   }else{
-    formData.append('id', props.auth.user.id);
+    // FormData espera string o Blob
+    formData.append('id', String(props.auth.user.id));
   }
   formData.append('user_file', encryptFile.value);
   
@@ -116,8 +122,9 @@ const handleEncrypt = async () => {
   try {
     const response = await fetch('/encriptar', {
       method: 'POST',
+      credentials: 'include',
       headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
       },
       body: formData
     });
@@ -200,22 +207,41 @@ const handleDecrypt = async () => {
   }, 200);
 
   try {
-    const response = await fetch('/desencriptar', {
+    // Enviar a la ruta que devuelve el archivo desencriptado como descarga
+    const response = await fetch('/desencriptar/download', {
       method: 'POST',
+      credentials: 'include',
       headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
       },
       body: formData
     });
 
-    const data = await response.json();
+    if (!response.ok) {
+      // Try to read JSON error message if returned
+      let errText = `Error ${response.status}: ${response.statusText}`;
+      try {
+        const json = await response.json();
+        if (json && json.error) errText = json.error;
+      } catch (e) {
+        // ignore json parse errors
+      }
+      throw new Error(errText);
+    }
 
-    if (!data.filename)
-      throw new Error('El servidor no devolvió el archivo desencriptado.');
+    // Recibimos el archivo como blob y forzamos la descarga
+    const blob = await response.blob();
+    const downloadUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = `desencriptado_${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(downloadUrl);
 
-        decryptedFileName.value = data.filename;
-        showDecryptSuccessModal.value = true;
-        progress.value = 100;
+    showDecryptSuccessModal.value = true;
+    progress.value = 100;
 
   } catch (err) {
     console.error('Error al desencriptar:', err);
@@ -344,7 +370,7 @@ const copyToClipboard = () => {
                       @dragover="handleDragOver"
                       @dragleave="handleDragLeave"
                       @drop="handleDrop"
-                      @click="$refs.encryptInput.click()"
+                      @click="() => encryptInputRef && encryptInputRef.click()"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500 mb-3" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2">
@@ -355,7 +381,7 @@ const copyToClipboard = () => {
                       <span v-if="!fileName" class="text-gray-600 dark:text-gray-300">Suelta tu archivo aquí</span>
                       <span v-else class="text-green-600 dark:text-green-400 font-medium">{{ fileName }}</span>
 
-                      <input ref="encryptInput" id="encrypt-file" type="file" accept=".txt"
+                      <input ref="encryptInputRef" id="encrypt-file" type="file" accept=".txt"
                         class="hidden" @change="handleEncryptFileChange" />
                     </div>
 
@@ -394,7 +420,7 @@ const copyToClipboard = () => {
                   @dragover="isDraggingTxt = true"
                   @dragleave="isDraggingTxt = false"
                   @drop="handleTxtDrop"
-                  @click="$refs.decryptTxtInput.click()"
+                  @click="() => decryptTxtInputRef && decryptTxtInputRef.click()"
                 >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500 mb-3" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor" stroke-width="2">
@@ -403,7 +429,7 @@ const copyToClipboard = () => {
                 </svg>
                 <span v-if="!decryptFile" class="text-gray-600 dark:text-gray-300">Suelta tu archivo .txt aquí</span>
                 <span v-else class="text-green-600 dark:text-green-400 font-medium">{{ decryptFile.name }}</span>
-                <input ref="decryptTxtInput" id="decrypt-file" type="file" accept=".txt" class="hidden" @change="handleDecryptFileChange" />
+                <input ref="decryptTxtInputRef" id="decrypt-file" type="file" accept=".txt" class="hidden" @change="handleDecryptFileChange" />
               </div>
 
               <!-- Zona KEY -->
@@ -415,7 +441,7 @@ const copyToClipboard = () => {
                 @dragover="isDraggingKey = true"
                 @dragleave="isDraggingKey = false"
                 @drop="handleKeyDrop"
-                @click="$refs.keyInput.click()"
+                @click="() => keyInputRef && keyInputRef.click()"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500 mb-3" fill="none" viewBox="-1 -1 24 24"
                   stroke="currentColor" stroke-width="2">
@@ -424,7 +450,7 @@ const copyToClipboard = () => {
                 </svg>
                 <span v-if="!keyFile" class="text-gray-600 dark:text-gray-300">Suelta tu archivo .key aquí</span>
                 <span v-else class="text-green-600 dark:text-green-400 font-medium">{{ keyFile.name }}</span>
-                <input ref="keyInput" id="key-file" type="file" accept=".key" class="hidden" @change="handleKeyFileChange" />
+                <input ref="keyInputRef" id="key-file" type="file" accept=".key" class="hidden" @change="handleKeyFileChange" />
               </div>
             </div>
 

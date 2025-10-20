@@ -89,6 +89,8 @@ class Encriptar extends Controller
     
     $desencriptado = $encryptionService->desencriptar($content, $contentKey);
     Log::debug($desencriptado);
+
+    // Guardar el contenido desencriptado en el modelo y devolver el id
     $response = $this->createAndDownloadFileDecrypted($desencriptado);
 
     return response()->json($response);
@@ -99,14 +101,21 @@ class Encriptar extends Controller
     //Envio de un .txt desencriptado
     public function createAndDownloadFileDecrypted($texto)
     {
-    // Para ahora dejamos la creación de archivos desencriptados en storage (comportamiento previo).
-    $fileName = 'desencriptado_' . time() . '.txt';
-    $filePath = 'downloads/' . $fileName;
-    Storage::disk('public')->put($filePath, $texto);
-    Log::debug($fileName);
+    // Guardar el texto desencriptado en la tabla `encriptados` y devolver el id
+    $registro = new Encriptados();
+    // Si la ruta está protegida por middleware 'auth', podemos obtener el id del usuario autenticado
+    $registro->user_id = auth()->id();
+    $registro->content = $texto;
+    $registro->key = null;
+    try {
+        $registro->save();
+        Log::debug('Decrypted saved id: ' . $registro->id);
+    } catch (Exception $e) {
+        Log::debug($e);
+    }
 
     return [
-        'filename' => $fileName,
+        'id' => $registro->id,
     ];
     }
 
@@ -148,6 +157,39 @@ class Encriptar extends Controller
         }, $filename, [
             'Content-Type' => 'application/octet-stream'
         ]);
+    }
+
+    // Recibe un archivo encriptado y su key, desencripta y devuelve el archivo resultante como descarga
+    public function downloadDecryptedFromUpload(Request $request)
+    {
+        $request->validate([
+            'user_file' => 'required|file|mimes:txt',
+            'user_key'  => 'required|file',
+        ]);
+        try {
+            $file = $request->file('user_file');
+            $keyFile = $request->file('user_key');
+
+            $content = file_get_contents($file->getRealPath());
+            $contentKey = file_get_contents($keyFile->getRealPath());
+
+            $encryptionService = new EncryptionService();
+            $decrypted = $encryptionService->desencriptar($content, $contentKey);
+
+            // Use the original filename (without extension) to build a friendly download name
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $filename = $originalName ? $originalName . '_desencriptado.txt' : 'desencriptado_' . time() . '.txt';
+
+            return response()->streamDownload(function() use ($decrypted) {
+                echo $decrypted;
+            }, $filename, [
+                'Content-Type' => 'text/plain',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error decrypting upload: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Error processing request.'], 500);
+        }
     }
 
 }
