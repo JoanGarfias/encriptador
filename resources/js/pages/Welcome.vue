@@ -98,8 +98,14 @@ const handleEncrypt = async () => {
   }
 
   const formData = new FormData();
+  if(!props.auth.user){
+    alert('Por favor, inicie sesión para encriptar su archivo.');
+    return;
+  }else{
+    formData.append('id', props.auth.user.id);
+  }
   formData.append('user_file', encryptFile.value);
-  formData.append('id', props.auth.user.id);
+  
 
   isLoading.value = true;
   progress.value = 0;
@@ -175,6 +181,11 @@ const handleDecrypt = async () => {
     alert('Selecciona el archivo .txt y .key para desencriptar.');
     return;
   }
+
+  if(!props.auth.user){
+    alert('Por favor, inicie sesión para desencriptar su archivo.');
+    return;
+  }
 
   const formData = new FormData();
   formData.append('user_file', decryptFile.value);
