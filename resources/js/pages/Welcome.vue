@@ -392,7 +392,7 @@ const handleKeyDrop = (event) => {
                 @drop="handleKeyDrop"
                 @click="$refs.keyInput.click()"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500 mb-3" fill="none" viewBox="0 0 24 24"
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500 mb-3" fill="none" viewBox="-1 -1 24 24"
                   stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M12 15v6m0 0l3-3m-3 3l-3-3m9-6a9 9 0 11-18 0 9 9 0 0118 0z" />
