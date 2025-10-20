@@ -6,10 +6,11 @@ RUN composer install --no-dev --no-interaction --optimize-autoloader
 
 FROM node:20-alpine AS frontend
 WORKDIR /app
+ARG VITE_APP_URL
 COPY package.json package-lock.json ./
 RUN npm install
 COPY . .
-RUN npm run build
+RUN VITE_APP_URL=${VITE_APP_URL} npm run build
 
 FROM php:8.3-fpm-alpine
 WORKDIR /var/www/html
