@@ -7,7 +7,7 @@ document.getElementById("encryptBtn").addEventListener("click", () => {
     const formData = new FormData();
     formData.append("user_file", archivo);
 
-    fetch('/encriptar2', {
+    fetch('/encriptar', {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
@@ -42,7 +42,7 @@ document.getElementById("decryptBtn").addEventListener("click", () => {
     formData.append("user_file", archivo);
     formData.append("user_key", archivoLlave);
 
-    fetch('/desencriptar2', {
+    fetch('/desencriptar', {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
