@@ -190,6 +190,29 @@ const copyToClipboard = () => {
     alert('¡Texto copiado al portapapeles!');
   });
 };
+
+
+const isDraggingTxt = ref(false);
+const isDraggingKey = ref(false);
+
+const handleTxtDrop = (event) => {
+  event.preventDefault();
+  isDraggingTxt.value = false;
+  const file = event.dataTransfer.files[0];
+  if (file && file.name.endsWith('.txt')) {
+    decryptFile.value = file;
+  }
+};
+
+const handleKeyDrop = (event) => {
+  event.preventDefault();
+  isDraggingKey.value = false;
+  const file = event.dataTransfer.files[0];
+  if (file && file.name.endsWith('.key')) {
+    keyFile.value = file;
+  }
+};
+
 </script>
 
 <template>
@@ -330,25 +353,73 @@ const copyToClipboard = () => {
               </TabsContent>
 
 
-                <!-- Decrypt Panel -->
-                <TabsContent value="decrypt" class="mt-6">
-                    <div class="flex flex-col gap-4 rounded-lg border p-6">
-                        <h3 class="text-lg font-semibold">Subir archivos para desencriptar</h3>
-                        <p class="text-sm text-muted-foreground">
-                           Sube el archivo .txt y el archivo .key correspondiente.
-                        </p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Input id="decrypt-file" type="file" accept=".txt" class="cursor-pointer bg-white border-neutral-300 hover:border-neutral-400 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-[1.01] active:scale-[0.99]"
-                            @change="handleDecryptFileChange"/>
-                           <Input id="key-file" type="file" accept=".key" class="cursor-pointer bg-white border-neutral-300 hover:border-neutral-400 transition-all duration-200 ease-in-out hover:shadow-md hover:scale-[1.01] active:scale-[0.99]"
-                           @change="handleKeyFileChange"/>
-                        </div>
-                        <Button @click="handleDecrypt" :disabled="isLoading || !decryptFile || !keyFile">
-                            {{ isLoading ? 'Procesando...' : 'Desencriptar Archivo' }}
-                        </Button>
-                        <Progress v-if="isLoading" v-model="progress" class="w-full mt-2" />
-                    </div>
-                </TabsContent>
+        <!-- Decrypt Panel -->
+                
+        <TabsContent value="decrypt" class="mt-6">
+          <div class="flex flex-col gap-4 rounded-lg border p-6 shadow-sm bg-white dark:bg-gray-900 transition-all">
+            <h3 class="text-lg font-semibold">Subir archivos para desencriptar</h3>
+            <p class="text-sm text-muted-foreground">
+              Arrastra los archivos <strong>.txt</strong> y <strong>.key</strong> a las áreas correspondientes o haz clic para seleccionarlos.
+            </p>
+
+            <!-- Zonas de carga -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Zona TXT -->
+              <div
+                class="flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-10 cursor-pointer transition-colors"
+                :class="isDraggingTxt ? 'border-blue-500 bg-blue-50 dark:bg-gray-800' : 'border-gray-300 hover:border-blue-400'"
+                @dragover="isDraggingTxt = true"
+                @dragleave="isDraggingTxt = false"
+                @drop="handleTxtDrop"
+                @click="$refs.decryptTxtInput.click()"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500 mb-3" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3 15a4 4 0 014-4h10a4 4 0 010 8H7a4 4 0 01-4-4zM12 12V3m0 0l3.293 3.293M12 3L8.707 6.293" />
+                </svg>
+                <span v-if="!decryptFile" class="text-gray-600 dark:text-gray-300">Suelta tu archivo .txt aquí</span>
+                <span v-else class="text-green-600 dark:text-green-400 font-medium">{{ decryptFile.name }}</span>
+                <input ref="decryptTxtInput" id="decrypt-file" type="file" accept=".txt" class="hidden" @change="handleDecryptFileChange" />
+              </div>
+
+              <!-- Zona KEY -->
+              <div
+                class="flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-10 cursor-pointer transition-colors"
+                :class="isDraggingKey ? 'border-blue-500 bg-blue-50 dark:bg-gray-800' : 'border-gray-300 hover:border-blue-400'"
+                @dragover="isDraggingKey = true"
+                @dragleave="isDraggingKey = false"
+                @drop="handleKeyDrop"
+                @click="$refs.keyInput.click()"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500 mb-3" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 15v6m0 0l3-3m-3 3l-3-3m9-6a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span v-if="!keyFile" class="text-gray-600 dark:text-gray-300">Suelta tu archivo .key aquí</span>
+                <span v-else class="text-green-600 dark:text-green-400 font-medium">{{ keyFile.name }}</span>
+                <input ref="keyInput" id="key-file" type="file" accept=".key" class="hidden" @change="handleKeyFileChange" />
+              </div>
+            </div>
+
+            <!-- Botón Desencriptar -->
+            <Button
+              @click="handleDecrypt"
+              :disabled="isLoading || !decryptFile || !keyFile"
+              class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
+            >
+              {{ isLoading ? 'Procesando...' : 'Desencriptar Archivo' }}
+            </Button>
+
+            <!-- Progreso -->
+            <div v-if="isLoading" class="mt-3">
+              <Progress v-model="progress" class="w-full" />
+              <p class="text-center text-sm text-gray-500 mt-1">Procesando archivos...</p>
+            </div>
+          </div>
+        </TabsContent>
+
             </Tabs>
         </div>
 
