@@ -1,17 +1,16 @@
-FROM node:20-alpine AS frontend
+FROM node:20-alpine AS frontend_deps
 
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
-COPY . .
-RUN npm run build
 
 
 FROM composer:2 AS vendor
 
 WORKDIR /app
-COPY composer.json composer.lock ./
+COPY . .
 RUN composer install --no-dev --no-interaction --optimize-autoloader
+
 
 FROM php:8.3-fpm-alpine
 
@@ -20,6 +19,8 @@ WORKDIR /var/www/html
 RUN apk add --no-cache \
         nginx \
         supervisor \
+        nodejs \
+        npm \
         libzip-dev \
         libpng-dev \
         jpeg-dev \
@@ -30,13 +31,13 @@ RUN apk add --no-cache \
 COPY . .
 
 COPY --from=vendor /app/vendor/ /var/www/html/vendor/
-COPY --from=frontend /app/public/build/ /var/www/html/public/build/
+COPY --from=frontend_deps /app/node_modules/ /var/www/html/node_modules/
+
+RUN npm run build
+
+RUN rm -rf node_modules
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
-RUN php artisan config:cache
-RUN php artisan route:cache
-RUN php artisan view:cache
 
 CMD ["php-fpm"]

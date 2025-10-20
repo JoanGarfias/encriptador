@@ -34,14 +34,14 @@ class EncryptionService
 
             switch ($k) {
                 case 1: $ascii += 9; break;
-                case 2: $ascii -= 1; break;
+                case 2: $ascii += 1; break;
                 case 3: $ascii += 5; break;
-                case 4: $ascii -= 2; break;
+                case 4: $ascii += 2; break;
                 case 5: $ascii += 1; break;
                 case 6: $ascii += 4; break;
-                case 7: $ascii -= 3; break;
+                case 7: $ascii += 3; break;
                 case 8: $ascii += 2; break;
-                case 9: $ascii -= 5; break;
+                case 9: $ascii += 5; break;
                 case 0: $ascii += 10; break;
             }
 
@@ -66,14 +66,14 @@ class EncryptionService
 
             switch ($k) {
                 case 1: $ascii -= 9; break;
-                case 2: $ascii += 1; break;
+                case 2: $ascii -= 1; break;
                 case 3: $ascii -= 5; break;
-                case 4: $ascii += 2; break;
+                case 4: $ascii -= 2; break;
                 case 5: $ascii -= 1; break;
                 case 6: $ascii -= 4; break;
-                case 7: $ascii += 3; break;
+                case 7: $ascii -= 3; break;
                 case 8: $ascii -= 2; break;
-                case 9: $ascii += 5; break;
+                case 9: $ascii -= 5; break;
                 case 0: $ascii -= 10; break;
             }
 

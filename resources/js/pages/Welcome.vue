@@ -15,12 +15,22 @@ const props = defineProps<{
   };
 }>();
 
+
 // --- Navegación ---
 const handleAuthClick = (path: string) => {
   props.auth.user ? router.visit('/perfil') : router.visit(path);
 };
 
 // --- Tema (oscuro/claro) ---
+
+// --- Auth y tema ---
+const handleAuthClick = (path: string) => {
+  if (props.auth.user) router.visit('/perfil');
+  else router.visit(path);
+};
+
+const isMenuOpen = ref(false);
+
 const theme = ref<'light' | 'dark'>('light');
 
 const toggleTheme = () => {
@@ -35,7 +45,10 @@ onMounted(() => {
   document.documentElement.classList.toggle('dark', theme.value === 'dark');
 });
 
+
 // --- Estado general ---
+// --- Variables de UI ---
+
 const activeTab = ref('encrypt');
 const encryptFile = ref<File | null>(null);
 const decryptFile = ref<File | null>(null);
@@ -49,8 +62,15 @@ const showDecryptSuccessModal = ref(false);
 // --- Drag & Drop Encriptar ---
 const isDragging = ref(false);
 const fileName = ref('');
+
 const encryptInput = ref<HTMLInputElement | null>(null);
 
+const encryptedFileName = ref('');
+const keyFileName = ref('');
+const downloadReady = ref(false);
+
+
+// --- Drag & Drop ---
 const handleDrop = (e: DragEvent) => {
   e.preventDefault();
   isDragging.value = false;
@@ -69,12 +89,21 @@ const handleDragOver = (e: DragEvent) => {
 };
 const handleDragLeave = () => (isDragging.value = false);
 
+
 const handleEncryptFileChange = (e: Event) => {
   const target = e.target as HTMLInputElement;
   const file = target.files?.[0];
   if (file && file.type === 'text/plain') {
     encryptFile.value = file;
     fileName.value = file.name;
+
+// --- Manejo de inputs ---
+const handleEncryptFileChange = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  if (target.files && target.files[0] && target.files[0].type === 'text/plain') {
+    encryptFile.value = target.files[0];
+    fileName.value = target.files[0].name;
+
   } else {
     alert('Por favor, selecciona un archivo .txt');
     target.value = '';
@@ -115,6 +144,7 @@ const handleKeyFileChange = (e: Event) => {
   else alert('Por favor, selecciona un archivo .key');
 };
 
+
 // --- Simulación de proceso (mock) ---
 const startProcessing = (callback: () => void) => {
   isLoading.value = true;
@@ -132,14 +162,86 @@ const startProcessing = (callback: () => void) => {
 const handleEncrypt = () => {
   if (!encryptFile.value) return alert('Selecciona un archivo para encriptar.');
   startProcessing(() => (showEncryptSuccessModal.value = true));
+
+// --- Encriptar archivo ---
+const handleEncrypt = async () => {
+  if (!encryptFile.value) {
+    alert('Por favor, selecciona un archivo para encriptar.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('user_file', encryptFile.value);
+
+  isLoading.value = true;
+  progress.value = 0;
+
+  // Simular barra de progreso mientras espera respuesta
+  const interval = setInterval(() => {
+    progress.value = Math.min(progress.value + 15, 90);
+  }, 200);
+
+  try {
+    const response = await fetch('/encriptar2', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.filename || !data.key) {
+      throw new Error('El servidor no devolvió los archivos esperados.');
+    }
+
+    encryptedFileName.value = data.filename;
+    keyFileName.value = data.key;
+    downloadReady.value = true;
+    showEncryptSuccessModal.value = true;
+    progress.value = 100;
+  } catch (err) {
+    console.error('Error al encriptar:', err);
+    alert('Ocurrió un error durante la encriptación. Intenta nuevamente.');
+  } finally {
+    clearInterval(interval);
+    isLoading.value = false;
+  }
+
 };
 
+// --- Desencriptar archivo ---
 const handleDecrypt = () => {
+
   if (!decryptFile.value || !keyFile.value)
     return alert('Selecciona el archivo .txt y .key para desencriptar.');
   startProcessing(() => (showDecryptSuccessModal.value = true));
+
+  if (!decryptFile.value || !keyFile.value) {
+    alert('Por favor, selecciona el archivo .txt y el archivo .key para desencriptar.');
+    return;
+  }
+
+  isLoading.value = true;
+  progress.value = 0;
+
+  const interval = setInterval(() => {
+    progress.value += 10;
+    if (progress.value >= 100) {
+      clearInterval(interval);
+      isLoading.value = false;
+      showDecryptSuccessModal.value = true;
+    }
+  }, 200);
+
 };
 
+// --- Copiar texto desencriptado ---
 const copyToClipboard = () => {
   navigator.clipboard.writeText(decryptedText.value).then(() =>
     alert('¡Texto copiado al portapapeles!')

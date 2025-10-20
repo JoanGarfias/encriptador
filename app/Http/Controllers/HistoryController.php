@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\HistoryRequest;
 use App\Models\Encriptados;
 use Illuminate\Http\Request;
-use Inertia\Inertia; // ✅ IMPORTANTE
+use Inertia\Inertia;
 
 class HistoryController extends Controller
 {
@@ -29,7 +29,7 @@ class HistoryController extends Controller
                             ->paginate($perPage, ['*'], 'page', $page)
                             ->appends(['perPage' => $perPage]);
 
-        // ✅ Aquí mandamos los datos al componente Vue
+        //Aquí mandamos los datos al componente Vue
         return Inertia::render('Historial', [
             'data' => $data,
             'perPage' => $perPage,

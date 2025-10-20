@@ -3,7 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Encriptar;
-use App\Http\Controllers\Encriptar2;
 use Inertia\Inertia;
 use App\Http\Controllers\HistoryController;
 
@@ -32,9 +31,6 @@ require __DIR__.'/auth.php';
 
 
 //encriptar
-Route::post('/encriptar', [Encriptar::class, 'encriptar']);
-Route::post('/desencriptar', [Encriptar::class, 'desencriptar']);
-
-Route::post('/encriptar2', [Encriptar2::class, 'encriptarArchivo']);
-Route::post('/desencriptar2', [Encriptar2::class, 'desencriptarArchivo']);
+Route::post('/encriptar', [Encriptar2::class, 'encriptarArchivo']);
+Route::post('/desencriptar', [Encriptar2::class, 'desencriptarArchivo']);
 Route::get('/downloads/{filename}', [Encriptar2::class, 'downloadFile'])->name('download.file');
