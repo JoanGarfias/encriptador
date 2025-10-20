@@ -24,6 +24,9 @@ WORKDIR /app
 # Copiar todo el código de la aplicación a la fábrica
 COPY . .
 
+# Forzar que la app use las variables de entorno de Docker en lugar de un archivo .env horneado en la imagen
+RUN rm -f .env
+
 # 1. Instalar dependencias de Composer (ahora tiene acceso a 'artisan')
 RUN composer install --no-dev --no-interaction --optimize-autoloader
 
