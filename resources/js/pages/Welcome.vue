@@ -132,7 +132,7 @@ const handleEncrypt = async () => {
   }, 200);
 
   try {
-    const response = await fetch('/encriptar2', {
+    const response = await fetch('/Encriptar', {
       method: 'POST',
       headers: {
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
