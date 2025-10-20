@@ -3,7 +3,7 @@ import { ref, computed } from "vue"
 
 const props = defineProps<{ data: any; perPage: number }>()
 
-// registros que vienen en props.data.data
+// registros 
 const archivos = computed(() => {
   const items = props.data && props.data.data ? props.data.data : []
   return items.map((it: any) => ({
@@ -22,7 +22,7 @@ const archivosFiltrados = computed(() => {
   return archivos.value.filter((a: any) => (a.content || "").toLowerCase().includes(q))
 })
 
-// Links de paginación que entrega Laravel
+// Links de paginación 
 const paginationLinks = computed(() => (props.data && props.data.links ? props.data.links : []))
 </script>
 
