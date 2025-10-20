@@ -84,7 +84,7 @@ class Encriptar extends Controller
     $file = $request->file('user_file');
     $content = file_get_contents($file->getRealPath());
     $key = $request->file('user_key');
-    $contentKey = file_get_contents($key->getRealPath());
+    $contentKey = trim(file_get_contents($key->getRealPath()));
     $encryptionService = new EncryptionService();
     
     $desencriptado = $encryptionService->desencriptar($content, $contentKey);
@@ -170,7 +170,7 @@ class Encriptar extends Controller
         $keyFile = $request->file('user_key');
 
         $content = file_get_contents($file->getRealPath());
-        $contentKey = file_get_contents($keyFile->getRealPath());
+        $contentKey = trim(file_get_contents($keyFile->getRealPath()));
 
         $encryptionService = new EncryptionService();
         $decrypted = $encryptionService->desencriptar($content, $contentKey);
