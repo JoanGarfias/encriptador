@@ -18,7 +18,7 @@ return new class extends Migration
                 ->references('id')
                 ->on('users')
                 ->onDelete('set null');
-            $table->longText('content');
+            $table->longText('content')->change();
             $table->text('key');
             $table->timestamps();
         });
