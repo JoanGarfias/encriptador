@@ -52,6 +52,7 @@ const fetchArchivos = async () => {
       params: {
         page: currentPage.value,
         perPage: itemsPerPage.value,
+        search: searchQuery.value,
         // Add other filters here if needed
       }
     })
@@ -72,7 +73,7 @@ const fetchArchivos = async () => {
 onMounted(fetchArchivos)
 
 // Re-fetch when pagination or perPage changes
-watch([currentPage, itemsPerPage], fetchArchivos)
+watch([currentPage, itemsPerPage, searchQuery], fetchArchivos)
 
 
 const totalPages = computed(() =>
