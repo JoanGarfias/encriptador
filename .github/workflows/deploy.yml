@@ -47,4 +47,4 @@ jobs:
             echo "-> Limpiando imágenes de Docker sin usar..."
             docker image prune -a -f
 
-            echo "✅ ¡Despliegue completado!"
+            echo "¡Despliegue completado!"
