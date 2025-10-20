@@ -95,6 +95,7 @@ const handleEncrypt = async () => {
 
   const formData = new FormData();
   formData.append('user_file', encryptFile.value);
+  formData.append('id', props.auth.user.id);
 
   isLoading.value = true;
   progress.value = 0;

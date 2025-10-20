@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Services\EncryptionService;
+use App\Http\Requests\HistoryRequest;
+use App\Models\Encriptados;
 
 class Encriptar extends Controller
 {
@@ -27,6 +29,8 @@ class Encriptar extends Controller
     //Encriptacion de un archivo (se recibe un .txt normal)
     public function encriptarArchivo(Request $request)
     {
+    $id = $request->input("id");
+    
     $request->validate([
         'user_file' => 'required|file|mimes:txt',
     ]);
@@ -37,7 +41,7 @@ class Encriptar extends Controller
     $key = $this->generarKey();
     $encriptado = $encryptionService->encriptar($content, implode($key));
 
-    $response = $this->createAndDownloadFile($encriptado, $key);
+    $response = $this->createAndDownloadFile($encriptado, $key, $id);
 
     return response()->json($response);
 
@@ -45,15 +49,35 @@ class Encriptar extends Controller
     }
 
     //Envio de un .txt encriptado y un .key
-    public function createAndDownloadFile($texto, $key)
+    public function createAndDownloadFile($texto, $key, $id)
     {
-    $fileName = 'my_file_' . time() . '.txt';
+     
+    
+    /*$record = Encriptados::find($id);
+    if (! $record) {
+            Log::debug($id);   
+            abort(404);
+        }
+    $llave = $record->key;*/
+
+    $registro = new Encriptados();
+    $registro->user_id = $id;
+    $registro->content = $texto;
+    $registro->key = implode($key);
+    try{
+        $registro->save();
+
+        Log::debug($registro->id);
+    } catch(Exception $e){
+        Log::debug($e);
+    }
+
+    $fileName = 'encriptado_' . time() . '.txt';
     $filePath = 'downloads/' . $fileName;
     Storage::disk('public')->put($filePath, $texto);
-    $fileNameKey = 'key_' . time() . '.key';
-    $filePathKey = 'downloads/' . $fileNameKey;
 
-    
+    $fileNameKey = $fileName . '_key_' . time() . '.key';
+    $filePathKey = 'downloads/' . $fileNameKey;
     Storage::disk('public')->put($filePathKey, implode($key));
 
     return [
@@ -88,7 +112,7 @@ class Encriptar extends Controller
     //Envio de un .txt desencriptado
     public function createAndDownloadFileDecrypted($texto)
     {
-    $fileName = 'my_decrypted_file_' . time() . '.txt';
+    $fileName = 'desencriptado_' . time() . '.txt';
     $filePath = 'downloads/' . $fileName;
     Storage::disk('public')->put($filePath, $texto);
     Log::debug($fileName);
