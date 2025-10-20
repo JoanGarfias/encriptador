@@ -6,14 +6,16 @@ use App\Http\Requests\HistoryRequest;
 use App\Models\Encriptados;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth; 
 
 class HistoryController extends Controller
 {
-    public function getHistory(HistoryRequest $request)
+   public function getHistory(HistoryRequest $request)
     {
         $inputs = $request->validated();
 
-        $data = Encriptados::select('user_id', 'content', 'created_at')
+        $data = Encriptados::select('id', 'user_id', 'content', 'created_at')
+                            ->where('user_id', Auth::id())
                             ->paginate($inputs["perPage"]);
 
         return response()->json($data);
@@ -24,12 +26,12 @@ class HistoryController extends Controller
         $perPage = (int) $request->query('perPage', 10);
         $page = (int) $request->query('page', 1);
 
-        $data = Encriptados::select('user_id', 'content', 'created_at')
+        $data = Encriptados::select('id', 'user_id', 'content', 'created_at')
+                            ->where('user_id', Auth::id())
                             ->orderBy('created_at', 'desc')
                             ->paginate($perPage, ['*'], 'page', $page)
                             ->appends(['perPage' => $perPage]);
 
-        //Aquí mandamos los datos al componente Vue
         return Inertia::render('Historial', [
             'data' => $data,
             'perPage' => $perPage,
@@ -41,6 +43,11 @@ class HistoryController extends Controller
         $record = Encriptados::find($id);
         if (! $record) {
             abort(404);
+        }
+
+        // Verificar que el registro pertenezca al usuario autenticado
+        if ($record->user_id !== Auth::id()) {
+            abort(403);
         }
 
         $key = $record->key;
