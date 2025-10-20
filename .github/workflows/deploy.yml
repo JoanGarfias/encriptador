@@ -28,11 +28,15 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            echo "-> Reconstruyendo y reiniciando contenedor de la aplicación..."
-            docker compose up -d --build --remove-orphans
-
-            echo "-> Ejecutando comandos de optimización de Laravel..."
-            docker compose exec unicripter php artisan migrate --force
+                        echo "-> Reconstruyendo y reiniciando contenedor de la aplicación..."
+                        docker compose up -d --build --remove-orphans
+            
+                        echo "-> Instalando dependencias de PHP y JS..."
+                        docker compose exec unicripter composer install --no-interaction --no-dev --prefer-dist
+                        docker compose exec unicripter npm install
+                        docker compose exec unicripter npm run build
+            
+                        echo "-> Ejecutando comandos de optimización de Laravel..."             docker compose exec unicripter php artisan migrate --force
             docker compose exec unicripter php artisan optimize:clear
             docker compose exec unicripter php artisan optimize
 
