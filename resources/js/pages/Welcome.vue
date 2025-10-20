@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -9,15 +8,20 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Textarea } from '@/components/ui/textarea';
 import { Head, Link, router } from '@inertiajs/vue3';
 
+// --- Props de autenticación ---
 const props = defineProps<{
   auth: {
-    user: null | {
-      id: number;
-      name: string;
-      email: string;
-    };
+    user: null | { id: number; name: string; email: string };
   };
 }>();
+
+
+// --- Navegación ---
+const handleAuthClick = (path: string) => {
+  props.auth.user ? router.visit('/perfil') : router.visit(path);
+};
+
+// --- Tema (oscuro/claro) ---
 
 // --- Auth y tema ---
 const handleAuthClick = (path: string) => {
@@ -26,17 +30,13 @@ const handleAuthClick = (path: string) => {
 };
 
 const isMenuOpen = ref(false);
+
 const theme = ref<'light' | 'dark'>('light');
 
 const toggleTheme = () => {
   theme.value = theme.value === 'light' ? 'dark' : 'light';
-  if (theme.value === 'dark') {
-    document.documentElement.classList.add('dark');
-    localStorage.setItem('theme', 'dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-    localStorage.setItem('theme', 'light');
-  }
+  document.documentElement.classList.toggle('dark', theme.value === 'dark');
+  localStorage.setItem('theme', theme.value);
 };
 
 onMounted(() => {
@@ -45,22 +45,30 @@ onMounted(() => {
   document.documentElement.classList.toggle('dark', theme.value === 'dark');
 });
 
+
+// --- Estado general ---
 // --- Variables de UI ---
+
 const activeTab = ref('encrypt');
 const encryptFile = ref<File | null>(null);
 const decryptFile = ref<File | null>(null);
 const keyFile = ref<File | null>(null);
 const isLoading = ref(false);
 const progress = ref(0);
+const decryptedText = ref('Este es el texto desencriptado de prueba.');
 const showEncryptSuccessModal = ref(false);
 const showDecryptSuccessModal = ref(false);
-const decryptedText = ref('Este es el texto desencriptado de prueba.');
 
+// --- Drag & Drop Encriptar ---
 const isDragging = ref(false);
 const fileName = ref('');
+
+const encryptInput = ref<HTMLInputElement | null>(null);
+
 const encryptedFileName = ref('');
 const keyFileName = ref('');
 const downloadReady = ref(false);
+
 
 // --- Drag & Drop ---
 const handleDrop = (e: DragEvent) => {
@@ -81,37 +89,79 @@ const handleDragOver = (e: DragEvent) => {
 };
 const handleDragLeave = () => (isDragging.value = false);
 
+
+const handleEncryptFileChange = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (file && file.type === 'text/plain') {
+    encryptFile.value = file;
+    fileName.value = file.name;
+
 // --- Manejo de inputs ---
 const handleEncryptFileChange = (e: Event) => {
   const target = e.target as HTMLInputElement;
   if (target.files && target.files[0] && target.files[0].type === 'text/plain') {
     encryptFile.value = target.files[0];
     fileName.value = target.files[0].name;
+
   } else {
     alert('Por favor, selecciona un archivo .txt');
     target.value = '';
   }
+};
+
+// --- Drag & Drop Desencriptar ---
+const isDraggingTxt = ref(false);
+const isDraggingKey = ref(false);
+const decryptTxtInput = ref<HTMLInputElement | null>(null);
+const keyInput = ref<HTMLInputElement | null>(null);
+
+const handleTxtDrop = (event: DragEvent) => {
+  event.preventDefault();
+  isDraggingTxt.value = false;
+  const file = event.dataTransfer?.files?.[0];
+  if (file && file.name.endsWith('.txt')) decryptFile.value = file;
+  else alert('Por favor, selecciona un archivo .txt');
+};
+
+const handleKeyDrop = (event: DragEvent) => {
+  event.preventDefault();
+  isDraggingKey.value = false;
+  const file = event.dataTransfer?.files?.[0];
+  if (file && file.name.endsWith('.key')) keyFile.value = file;
+  else alert('Por favor, selecciona un archivo .key');
 };
 
 const handleDecryptFileChange = (e: Event) => {
-  const target = e.target as HTMLInputElement;
-  if (target.files && target.files[0] && target.files[0].type === 'text/plain') {
-    decryptFile.value = target.files[0];
-  } else {
-    alert('Por favor, selecciona un archivo .txt');
-    target.value = '';
-  }
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (file && file.name.endsWith('.txt')) decryptFile.value = file;
+  else alert('Por favor, selecciona un archivo .txt');
 };
 
 const handleKeyFileChange = (e: Event) => {
-  const target = e.target as HTMLInputElement;
-  if (target.files && target.files[0] && target.files[0].name.endsWith('.key')) {
-    keyFile.value = target.files[0];
-  } else {
-    alert('Por favor, selecciona un archivo .key');
-    target.value = '';
-  }
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (file && file.name.endsWith('.key')) keyFile.value = file;
+  else alert('Por favor, selecciona un archivo .key');
 };
+
+
+// --- Simulación de proceso (mock) ---
+const startProcessing = (callback: () => void) => {
+  isLoading.value = true;
+  progress.value = 0;
+  const interval = setInterval(() => {
+    progress.value += 10;
+    if (progress.value >= 100) {
+      clearInterval(interval);
+      isLoading.value = false;
+      callback();
+    }
+  }, 200);
+};
+
+const handleEncrypt = () => {
+  if (!encryptFile.value) return alert('Selecciona un archivo para encriptar.');
+  startProcessing(() => (showEncryptSuccessModal.value = true));
 
 // --- Encriptar archivo ---
 const handleEncrypt = async () => {
@@ -162,10 +212,16 @@ const handleEncrypt = async () => {
     clearInterval(interval);
     isLoading.value = false;
   }
+
 };
 
 // --- Desencriptar archivo ---
 const handleDecrypt = () => {
+
+  if (!decryptFile.value || !keyFile.value)
+    return alert('Selecciona el archivo .txt y .key para desencriptar.');
+  startProcessing(() => (showDecryptSuccessModal.value = true));
+
   if (!decryptFile.value || !keyFile.value) {
     alert('Por favor, selecciona el archivo .txt y el archivo .key para desencriptar.');
     return;
@@ -182,13 +238,14 @@ const handleDecrypt = () => {
       showDecryptSuccessModal.value = true;
     }
   }, 200);
+
 };
 
 // --- Copiar texto desencriptado ---
 const copyToClipboard = () => {
-  navigator.clipboard.writeText(decryptedText.value).then(() => {
-    alert('¡Texto copiado al portapapeles!');
-  });
+  navigator.clipboard.writeText(decryptedText.value).then(() =>
+    alert('¡Texto copiado al portapapeles!')
+  );
 };
 
 
@@ -214,6 +271,7 @@ const handleKeyDrop = (event) => {
 };
 
 </script>
+
 
 <template>
     <Head title="Encriptador de Archivos" />
@@ -319,7 +377,9 @@ const handleKeyDrop = (event) => {
                     <!-- Zona Drag & Drop -->
                     <div
                       class="flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-10 cursor-pointer transition-colors"
-                      :class="isDragging ? 'border-blue-500 bg-blue-50 dark:bg-gray-800' : 'border-gray-300 hover:border-blue-400'"
+                      :class="isDragging 
+                        ? 'border-[#9a9563]' 
+                        : 'border-gray-300 hover:border-[#9a9563]'"
                       @dragover="handleDragOver"
                       @dragleave="handleDragLeave"
                       @drop="handleDrop"
@@ -340,7 +400,7 @@ const handleKeyDrop = (event) => {
 
                     <!-- Botón Encriptar -->
                     <Button @click="handleEncrypt" :disabled="isLoading || !encryptFile"
-                      class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium">
+                      class="mt-4 w-full bg-yellow-700 hover:bg-yellow-800 text-white font-medium">
                       {{ isLoading ? 'Encriptando...' : 'Subir y Encriptar' }}
                     </Button>
 
@@ -366,13 +426,15 @@ const handleKeyDrop = (event) => {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Zona TXT -->
               <div
-                class="flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-10 cursor-pointer transition-colors"
-                :class="isDraggingTxt ? 'border-blue-500 bg-blue-50 dark:bg-gray-800' : 'border-gray-300 hover:border-blue-400'"
-                @dragover="isDraggingTxt = true"
-                @dragleave="isDraggingTxt = false"
-                @drop="handleTxtDrop"
-                @click="$refs.decryptTxtInput.click()"
-              >
+                  class="flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-10 cursor-pointer transition-colors"
+                  :class="isDraggingTxt 
+                    ? 'border-[#9a9563]' 
+                    : 'border-gray-300 hover:border-[#9a9563]'"
+                  @dragover="isDraggingTxt = true"
+                  @dragleave="isDraggingTxt = false"
+                  @drop="handleTxtDrop"
+                  @click="$refs.decryptTxtInput.click()"
+                >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500 mb-3" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -386,7 +448,9 @@ const handleKeyDrop = (event) => {
               <!-- Zona KEY -->
               <div
                 class="flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-10 cursor-pointer transition-colors"
-                :class="isDraggingKey ? 'border-blue-500 bg-blue-50 dark:bg-gray-800' : 'border-gray-300 hover:border-blue-400'"
+                :class="isDraggingKey 
+                  ? 'border-[#9a9563]' 
+                  : 'border-gray-300 hover:border-[#9a9563]'"
                 @dragover="isDraggingKey = true"
                 @dragleave="isDraggingKey = false"
                 @drop="handleKeyDrop"
@@ -407,7 +471,8 @@ const handleKeyDrop = (event) => {
             <Button
               @click="handleDecrypt"
               :disabled="isLoading || !decryptFile || !keyFile"
-              class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
+             class="mt-4 w-full bg-yellow-700 hover:bg-yellow-800 text-white font-medium"
+
             >
               {{ isLoading ? 'Procesando...' : 'Desencriptar Archivo' }}
             </Button>
