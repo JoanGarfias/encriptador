@@ -66,18 +66,10 @@ class Encriptar extends Controller
     } catch(Exception $e){
         Log::debug($e);
     }
-
-    $fileName = 'encriptado_' . time() . '.txt';
-    $filePath = 'downloads/' . $fileName;
-    Storage::disk('public')->put($filePath, $texto);
-
-    $fileNameKey = 'key_' . time() . '.key';
-    $filePathKey = 'downloads/' . $fileNameKey;
-    Storage::disk('public')->put($filePathKey, implode($key));
-
+    // En lugar de escribir archivos en storage, ya guardamos el contenido y la key en el modelo
+    // Devolvemos el id del registro para que el frontend solicite la descarga por id
     return [
-        'filename' => $fileName,
-        'key' => $fileNameKey,
+        'id' => $registro->id,
     ];
     }
 
@@ -107,6 +99,7 @@ class Encriptar extends Controller
     //Envio de un .txt desencriptado
     public function createAndDownloadFileDecrypted($texto)
     {
+    // Para ahora dejamos la creación de archivos desencriptados en storage (comportamiento previo).
     $fileName = 'desencriptado_' . time() . '.txt';
     $filePath = 'downloads/' . $fileName;
     Storage::disk('public')->put($filePath, $texto);
@@ -127,6 +120,34 @@ class Encriptar extends Controller
     }
 
     return response()->download($filePath);
+    }
+
+    // Descargar el contenido encriptado desde la base de datos y crear el archivo al vuelo
+    public function downloadContent($id)
+    {
+        $registro = Encriptados::findOrFail($id);
+        $content = $registro->content;
+        $filename = 'encriptado_' . $registro->id . '.txt';
+
+        return response()->streamDownload(function() use ($content) {
+            echo $content;
+        }, $filename, [
+            'Content-Type' => 'text/plain'
+        ]);
+    }
+
+    // Descargar la key desde la base de datos y crear el archivo al vuelo
+    public function downloadKey($id)
+    {
+        $registro = Encriptados::findOrFail($id);
+        $key = $registro->key;
+        $filename = 'key_' . $registro->id . '.key';
+
+        return response()->streamDownload(function() use ($key) {
+            echo $key;
+        }, $filename, [
+            'Content-Type' => 'application/octet-stream'
+        ]);
     }
 
 }

@@ -126,11 +126,13 @@ const handleEncrypt = async () => {
 
     const data = await response.json();
 
-    if (!data.filename || !data.key)
-      throw new Error('El servidor no devolvió los archivos esperados.');
+    if (!data.id)
+      throw new Error('El servidor no devolvió el id del registro.');
 
-    encryptedFileName.value = data.filename;
-    keyFileName.value = data.key;
+    // Guardamos el id y construimos las URLs de descarga
+    const id = data.id;
+    encryptedFileName.value = `/download/content/${id}`;
+    keyFileName.value = `/download/key/${id}`;
     downloadReady.value = true;
     showEncryptSuccessModal.value = true;
     progress.value = 100;
@@ -457,7 +459,7 @@ const copyToClipboard = () => {
                     </DialogDescription>
                     <a
                       v-if="encryptedFileName"
-                      :href="`/storage/downloads/${encryptedFileName}`"
+                      :href="encryptedFileName"
                       download
                       class="block text-blue-600 hover:underline"
                     >
@@ -466,7 +468,7 @@ const copyToClipboard = () => {
 
                     <a
                       v-if="keyFileName"
-                      :href="`/storage/downloads/${keyFileName}`"
+                      :href="keyFileName"
                       download
                       class="block text-green-600 hover:underline"
                     >
