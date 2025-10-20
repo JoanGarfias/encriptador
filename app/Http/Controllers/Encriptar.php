@@ -33,7 +33,7 @@ class Encriptar extends Controller
     if(is_null($id)){
         return json_encode(["error" => "Inicia sesion para encriptar"]);
     }
-    
+
     $request->validate([
         'user_file' => 'required|file|mimes:txt',
     ]);
@@ -86,7 +86,7 @@ class Encriptar extends Controller
     $key = $request->file('user_key');
     $contentKey = trim(file_get_contents($key->getRealPath()));
     $encryptionService = new EncryptionService();
-    
+
     $desencriptado = $encryptionService->desencriptar($content, $contentKey);
     Log::debug($desencriptado);
 
@@ -161,6 +161,9 @@ class Encriptar extends Controller
 
     // Recibe un archivo encriptado y su key, desencripta y devuelve el archivo resultante como descarga
     public function downloadDecryptedFromUpload(Request $request){
+
+        Log::info("Inicio de descarga desencriptada");
+
         $request->validate([
             'user_file' => 'required|file|mimes:txt',
             'user_key'  => 'required|file',
@@ -171,6 +174,9 @@ class Encriptar extends Controller
 
         $content = file_get_contents($file->getRealPath());
         $contentKey = trim(file_get_contents($keyFile->getRealPath()));
+
+        Log::debug("Contenido: " . $content);
+        Log::debug("Clave: " . $contentKey);
 
         $encryptionService = new EncryptionService();
         $decrypted = $encryptionService->desencriptar($content, $contentKey);
