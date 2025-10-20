@@ -182,6 +182,11 @@ const handleDecrypt = async () => {
     return;
   }
 
+  if(!props.auth.user){
+    alert('Por favor, inicie sesión para desencriptar su archivo.');
+    return;
+  }
+
   const formData = new FormData();
   formData.append('user_file', decryptFile.value);
   formData.append('user_key', keyFile.value);
@@ -500,7 +505,13 @@ const copyToClipboard = () => {
                 </div>
 
                 <DialogFooter>
-                  <Button @click="showEncryptSuccessModal = false">Cerrar</Button>
+                  <Button 
+                      type="button"
+                      class="bg-black hover:bg-gray-800 text-white"
+                      @click="showDecryptSuccessModal = false"
+                    >
+                      Cerrar
+                    </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
