@@ -28,7 +28,7 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             echo "-> Reconstruyendo y reiniciando contenedor de la aplicación..."
-            docker compose up -d --build --remove-orphans
+            docker compose up -d --build --force-recreate --remove-orphans
 
             echo "-> Copiando archivo .env de producción al contenedor..."
             docker cp .env unicripter:/var/www/html/.env
