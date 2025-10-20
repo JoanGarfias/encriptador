@@ -37,7 +37,11 @@ class Encriptar extends Controller
     $key = $this->generarKey();
     $encriptado = $encryptionService->encriptar($content, implode($key));
 
-    return $this->createAndDownloadFile($encriptado, $key);
+    $response = $this->createAndDownloadFile($encriptado, $key);
+
+    return response()->json($response);
+
+    //return $this->createAndDownloadFile($encriptado, $key);
     }
 
     //Envio de un .txt encriptado y un .key
