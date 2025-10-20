@@ -494,7 +494,13 @@ const copyToClipboard = () => {
                 </div>
 
                 <DialogFooter>
-                  <Button @click="showEncryptSuccessModal = false">Cerrar</Button>
+                  <Button 
+                      type="button"
+                      class="bg-black hover:bg-gray-800 text-white"
+                      @click="showDecryptSuccessModal = false"
+                    >
+                      Cerrar
+                    </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
