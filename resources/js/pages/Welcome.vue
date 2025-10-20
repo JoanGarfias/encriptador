@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Textarea } from '@/components/ui/textarea';
 import { Head, Link, router } from '@inertiajs/vue3';
 
+
 // --- Props de autenticación ---
 const props = defineProps<{
   auth: {
@@ -50,10 +51,13 @@ const showDecryptSuccessModal = ref(false);
 const encryptedFileName = ref('');
 const keyFileName = ref('');
 const downloadReady = ref(false);
+const decryptedFileName = ref('');
+
 
 // --- Drag & Drop para encriptar ---
 const isDragging = ref(false);
 const fileName = ref('');
+
 
 const handleDrop = (e: DragEvent) => {
   e.preventDefault();
@@ -196,10 +200,10 @@ const handleDecrypt = async () => {
     if (!data.filename)
       throw new Error('El servidor no devolvió el archivo desencriptado.');
 
-    const downloadUrl = `/downloads/${encodeURIComponent(data.filename)}`;
-    decryptedText.value = `Archivo desencriptado correctamente.\nDescárgalo aquí:\n${downloadUrl}`;
-    showDecryptSuccessModal.value = true;
-    progress.value = 100;
+        decryptedFileName.value = data.filename;
+        showDecryptSuccessModal.value = true;
+        progress.value = 100;
+
   } catch (err) {
     console.error('Error al desencriptar:', err);
     alert('Ocurrió un error al desencriptar el archivo.');
@@ -465,22 +469,35 @@ const copyToClipboard = () => {
         </Dialog>
 
         <!-- Decrypt Success Modal -->
-        <Dialog v-model:open="showDecryptSuccessModal">
-            <DialogContent class="max-w-lg">
+            <Dialog v-model:open="showDecryptSuccessModal">
+              <DialogContent class="max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>¡Éxito!</DialogTitle>
-                    <DialogDescription>
-                        Tu archivo ha sido desencriptado.
-                    </DialogDescription>
+                  <DialogTitle>¡Éxito!</DialogTitle>
+                  <DialogDescription>
+                    Tu archivo ha sido desencriptado correctamente.
+                  </DialogDescription>
+
+                  <!-- Enlace de descarga (igual estilo que encriptado) -->
+                  <a
+                    v-if="decryptedFileName"
+                    :href="`/storage/downloads/${decryptedFileName}`"
+                    download
+                    class="block text-blue-600 hover:underline mt-3"
+                  >
+                    Descargar archivo desencriptado
+                  </a>
                 </DialogHeader>
-                <div class="my-4">
-                    <Textarea :model-value="decryptedText" readonly rows="10" class="w-full" />
+
+                <!-- (Opcional) Mostrar contenido si quieres mantenerlo -->
+                <div v-if="decryptedText" class="my-4">
+                  <Textarea :model-value="decryptedText" readonly rows="10" class="w-full" />
                 </div>
+
                 <DialogFooter>
-                    <Button @click="copyToClipboard">Copiar Contenido</Button>
-                    <Button variant="secondary" @click="showDecryptSuccessModal = false">Cerrar</Button>
+                  <Button @click="showEncryptSuccessModal = false">Cerrar</Button>
                 </DialogFooter>
-            </DialogContent>
-        </Dialog>
+              </DialogContent>
+            </Dialog>
+
     </div>
 </template>
