@@ -166,30 +166,32 @@ class Encriptar extends Controller
             'user_file' => 'required|file|mimes:txt',
             'user_key'  => 'required|file',
         ]);
-        try {
-            $file = $request->file('user_file');
-            $keyFile = $request->file('user_key');
 
-            $content = file_get_contents($file->getRealPath());
-            $contentKey = file_get_contents($keyFile->getRealPath());
+        return true;
+    }
 
-            $encryptionService = new EncryptionService();
-            $decrypted = $encryptionService->desencriptar($content, $contentKey);
+    function downloadDecrypted(Request $request){
+        $request->validate([
+            'user_file' => 'required|file|mimes:txt',
+            'user_key'  => 'required|file',
+        ]);
 
-            // Use the original filename (without extension) to build a friendly download name
-            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $filename = $originalName ? $originalName . '_desencriptado.txt' : 'desencriptado_' . time() . '.txt';
+        $file = $request->file('user_file');
+        $keyFile = $request->file('user_key');
 
-            return response()->streamDownload(function() use ($decrypted) {
-                echo $decrypted;
-            }, $filename, [
-                'Content-Type' => 'text/plain',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"'
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error decrypting upload: ' . $e->getMessage(), ['exception' => $e]);
-            return response()->json(['error' => 'Error processing request.'], 500);
-        }
+        $content = file_get_contents($file->getRealPath());
+        $contentKey = file_get_contents($keyFile->getRealPath());
+
+        $encryptionService = new EncryptionService();
+        $decrypted = $encryptionService->desencriptar($content, $contentKey);
+
+        $filename = 'encriptado_' . $decrypted . '.txt';
+
+        return response()->streamDownload(function() use ($content) {
+            echo $content;
+        }, $filename, [
+            'Content-Type' => 'text/plain'
+        ]);
     }
 
 }
