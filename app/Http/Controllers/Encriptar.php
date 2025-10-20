@@ -50,7 +50,7 @@ class Encriptar extends Controller
     $fileName = 'my_file_' . time() . '.txt';
     $filePath = 'downloads/' . $fileName;
     Storage::disk('public')->put($filePath, $texto);
-    $fileNameKey = '_key_' . time() . '.key';
+    $fileNameKey = 'key_' . time() . '.key';
     $filePathKey = 'downloads/' . $fileNameKey;
 
     
