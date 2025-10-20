@@ -13,7 +13,7 @@ services:
       APP_DEBUG: "false"
       LOG_CHANNEL: stderr
     expose:
-      - "9900"
+      - "9000"
     # volumes:
     #   - ./:/var/www # Deshabilitado para producción, la imagen es autocontenida
     networks:
