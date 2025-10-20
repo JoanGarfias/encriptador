@@ -35,11 +35,8 @@ jobs:
             docker compose exec unicripter chown www-data:www-data /var/www/html/.env
 
             echo "-> Limpiando caché y ejecutando migraciones..."
+            docker compose exec unicripter php artisan migrate:fresh --force
             docker compose exec unicripter php artisan optimize:clear
-            docker compose exec unicripter php artisan migrate --force
-
-            echo "-> Optimizando la aplicación para producción..."
-            docker compose exec unicripter php artisan optimize
 
             echo "-> Desactivando modo mantenimiento..."
             docker compose exec unicripter php artisan up
