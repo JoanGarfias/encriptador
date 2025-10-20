@@ -36,6 +36,8 @@ require __DIR__.'/auth.php';
 //encriptar
 Route::post('/encriptar', [Encriptar::class, 'encriptarArchivo'])->name('encriptar')->middleware(['auth']);
 Route::post('/desencriptar', [Encriptar::class, 'desencriptarArchivo'])->name('desencriptar')->middleware(['auth']);
+// Ruta que recibe upload (encriptado + key) y devuelve el archivo desencriptado como descarga
+Route::post('/desencriptar/download', [Encriptar::class, 'downloadDecryptedFromUpload'])->name('desencriptar.download')->middleware(['auth']);
 Route::get('/downloads/{filename}', [Encriptar::class, 'downloadFile'])->name('descargar')->middleware(['auth']);
 // Nuevas rutas para descargar desde el modelo
 Route::get('/download/content/{id}', [Encriptar::class, 'downloadContent'])->name('download.content')->middleware(['auth']);
