@@ -12,6 +12,8 @@ RUN apk add --no-cache \
         jpeg-dev \
         freetype-dev \
         libxml2-dev \
+        bison \
+        re2c \
     && docker-php-source extract \
     && docker-php-ext-install pdo pdo_mysql zip gd exif session fileinfo tokenizer dom \
     && docker-php-source delete
@@ -46,6 +48,8 @@ RUN apk add --no-cache \
         jpeg-dev \
         freetype-dev \
         libxml2-dev \
+        bison \
+        re2c \
     && docker-php-source extract \
     && docker-php-ext-install pdo pdo_mysql zip gd exif session fileinfo tokenizer dom \
     && docker-php-source delete
