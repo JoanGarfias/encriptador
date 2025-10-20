@@ -32,6 +32,6 @@ require __DIR__.'/auth.php';
 
 
 //encriptar
-Route::post('/encriptar', [Encriptar::class, 'encriptarArchivo'])->name('encriptar');
-Route::post('/desencriptar', [Encriptar::class, 'desencriptarArchivo'])->name('desencriptar');
-Route::get('/downloads/{filename}', [Encriptar::class, 'downloadFile'])->name('descargar');
+Route::post('/encriptar', [Encriptar::class, 'encriptarArchivo'])->name('encriptar')->middleware(['auth']);
+Route::post('/desencriptar', [Encriptar::class, 'desencriptarArchivo'])->name('desencriptar')->middleware(['auth']);
+Route::get('/downloads/{filename}', [Encriptar::class, 'downloadFile'])->name('descargar')->middleware(['auth']);

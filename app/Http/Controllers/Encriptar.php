@@ -30,6 +30,9 @@ class Encriptar extends Controller
     public function encriptarArchivo(Request $request)
     {
     $id = $request->input("id");
+    if(is_null($id)){
+        return json_encode(["error" => "Inicia sesion para encriptar"]);
+    }
     
     $request->validate([
         'user_file' => 'required|file|mimes:txt',
