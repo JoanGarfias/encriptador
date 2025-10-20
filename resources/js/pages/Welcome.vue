@@ -182,6 +182,11 @@ const handleDecrypt = async () => {
     return;
   }
 
+  if(!props.auth.user){
+    alert('Por favor, inicie sesión para desencriptar su archivo.');
+    return;
+  }
+
   const formData = new FormData();
   formData.append('user_file', decryptFile.value);
   formData.append('user_key', keyFile.value);
