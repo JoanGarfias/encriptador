@@ -31,20 +31,20 @@ jobs:
             git pull origin main
 
             echo "-> Reconstruyendo y reiniciando contenedores..."
-            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
+            docker compose -f docker-compose.yml up -d --build --remove-orphans
 
             # Esperar un momento para que el contenedor de la app esté listo
             sleep 8
 
             # 4. Ejecutar comandos post-despliegue dentro del contenedor
             echo "-> Ejecutando comandos de optimización de Laravel..."
-            docker compose -f docker-compose.prod.yml exec app php artisan migrate --force
+            docker compose -f docker-compose.yml exec app php artisan migrate --force
 
-            docker compose -f docker-compose.prod.yml exec app php artisan optimize
+            docker compose -f docker-compose.yml exec app php artisan optimize
 
             # 5. Quitar el modo mantenimiento
             echo "-> Desactivando modo mantenimiento..."
-            docker compose -f docker-compose.prod.yml exec app php artisan up
+            docker compose -f docker-compose.yml exec app php artisan up
 
             echo "-> Limpiando imágenes de Docker sin usar..."
             docker image prune -f
