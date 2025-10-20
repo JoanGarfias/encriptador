@@ -6,20 +6,26 @@ use App\Http\Requests\HistoryRequest;
 use App\Models\Encriptados;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Log;
 
 class HistoryController extends Controller
 {
-   public function getHistory(HistoryRequest $request)
-    {
-        $inputs = $request->validated();
+    public function getHistory(HistoryRequest $request)
+{
+    $inputs = $request->validated();
 
-        $data = Encriptados::select('id', 'user_id', 'content', 'created_at')
-                            ->where('user_id', Auth::id())
-                            ->paginate($inputs["perPage"]);
+    $query = Encriptados::select('id', 'user_id', 'content', 'created_at')
+                ->where('user_id', auth()->id());
 
-        return response()->json($data);
+    if (!empty($inputs['search'])) {
+        $query->where('content', 'like', '%' . $inputs['search'] . '%');
     }
+
+    $data = $query->orderBy('created_at', 'desc')
+                  ->paginate($inputs['perPage'] ?? 10);
+
+    return response()->json($data);
+}
 
     public function index(Request $request)
     {
@@ -55,6 +61,25 @@ class HistoryController extends Controller
 
         return response()->streamDownload(function() use ($key) {
             echo $key;
+        }, $filename, [
+            'Content-Type' => 'application/octet-stream',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+
+    public function downloadContent($id)
+    {
+        Log::debug($id);
+        $record = Encriptados::find($id);
+        if (! $record) {
+            abort(404);
+        }
+
+        $content = $record->content;
+        $filename = "encriptado_{$record->id}.txt";
+
+        return response()->streamDownload(function() use ($content) {
+            echo $content;
         }, $filename, [
             'Content-Type' => 'application/octet-stream',
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
