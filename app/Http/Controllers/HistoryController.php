@@ -19,7 +19,7 @@ class HistoryController extends Controller
     $inputs = $request->validated();
 
     $query = Encriptados::select('id', 'user_id', 'content', 'created_at')
-                ->where('user_id', Auth::id())
+                ->where('user_id', Auth::id());
     Log::debug($request->query('search'));
     if (!empty($request->query('search'))) {
         $query->where('content', 'like', '%' . $request->query('search') . '%');
