@@ -22,8 +22,9 @@ Route::get('/test', function(){
 
 
 
-Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
-Route::get('/history/download/{id}', [HistoryController::class, 'downloadKey'])->name('history.download');
+Route::get('/history', [HistoryController::class, 'getHistory'])->name('history.index');
+Route::get('/history/download/llaves/{id}.key', [HistoryController::class, 'downloadKey'])->name('history.download');
+Route::get('/history/download/encriptado/{id}.txt', [HistoryController::class, 'downloadContent'])->name('history.download');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

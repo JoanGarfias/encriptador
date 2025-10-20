@@ -12,7 +12,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { ref, computed } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 
 defineProps<{
   auth: {
@@ -26,87 +26,62 @@ defineProps<{
 }>()
 
 // Datos simulados
-const archivos = ref([
-  {
-    id: 1,
-    content: 'RnJ+Y3cqc...',
-    key_url: '/storage/keys/file1.key',
-    created_at: '2025-10-19 07:11:33',
-  },
-  {
-    id: 2,
-    content: 'RnB4JGh5a...',
-    key_url: '/storage/keys/file2.key',
-    created_at: '2025-10-19 07:11:33',
-  },
-  {
-    id: 3,
-    content: 'R211cG5fc...',
-    key_url: '/storage/keys/file3.key',
-    created_at: '2025-10-19 07:11:33',
-  },
-  {
-    id: 4,
-    content: 'UWyJzah94...',
-    key_url: '/storage/keys/file4.key',
-    created_at: '2025-10-19 07:11:33',
-  },
-  {
-    id: 5,
-    content: 'SHBwc3Qhc...',
-    key_url: '/storage/keys/file5.key',
-    created_at: '2025-10-19 07:11:33',
-  },
-  {
-    id: 6,
-    content: 'QHdkcS1cH...',
-    key_url: '/storage/keys/file6.key',
-    created_at: '2025-10-19 07:11:33',
-  },
-  {
-    id: 7,
-    content: 'TW9ybmhtR...',
-    key_url: '/storage/keys/file7.key',
-    created_at: '2025-10-19 07:11:33',
-  },
-  {
-    id: 8,
-    content: 'W9n9tSgQa...',
-    key_url: '/storage/keys/file8.key',
-    created_at: '2025-10-19 07:11:33',
-  },
-  {
-    id: 9,
-    content: 'Q2xtcXViV...',
-    key_url: '/storage/keys/file9.key',
-    created_at: '2025-10-19 07:11:33',
-  },
-  {
-    id: 10,
-    content: 'UGVxHV93b...',
-    key_url: '/storage/keys/file10.key',
-    created_at: '2025-10-19 07:11:33',
-  },
-])
 
+import axios from 'axios'
+
+interface Archivo {
+  id: number
+  content: string
+  key_url: string
+  created_at: string
+}
+
+// Replace simulated data
+const archivos = ref<Archivo[]>([])
+
+// Pagination and filters
 const searchQuery = ref('')
 const itemsPerPage = ref(10)
 const currentPage = ref(1)
+const totalItems = ref(0)
 
-const filteredData = computed(() =>
-  archivos.value.filter((file) =>
-    file.content.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
-)
+// Fetch data from the backend
+const fetchArchivos = async () => {
+  try {
+    const response = await axios.get('/history', {
+      params: {
+        page: currentPage.value,
+        perPage: itemsPerPage.value,
+        search: searchQuery.value,
+        // Add other filters here if needed
+      }
+    })
+
+    // Laravel paginated data structure
+    archivos.value = response.data.data.map((item: any) => ({
+      ...item,
+      key_url: `/history/download/llaves/${item.id}.key`, // Construct key URL manually
+      txt_url: `/history/download/encriptado/${item.id}.txt`,
+    }))
+    totalItems.value = response.data.total
+  } catch (error) {
+    console.error('Error fetching history:', error)
+  }
+}
+
+// Auto-fetch when component mounts
+onMounted(fetchArchivos)
+
+// Re-fetch when pagination or perPage changes
+watch([currentPage, itemsPerPage, searchQuery], fetchArchivos)
+
 
 const totalPages = computed(() =>
-  Math.ceil(filteredData.value.length / itemsPerPage.value)
+  Math.ceil(totalItems.value / itemsPerPage.value)
 )
 
-const paginatedData = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value
-  return filteredData.value.slice(start, start + itemsPerPage.value)
-})
+const filteredData = computed(() => archivos.value) // No client-side filtering unless needed
+const paginatedData = computed(() => archivos.value)
 
 const goToPage = (page: number) => {
   if (page >= 1 && page <= totalPages.value) {
@@ -170,6 +145,9 @@ const goToPage = (page: number) => {
                   class="hover:bg-primary/5 transition"
                 >
                   <TableCell class="font-mono text-sm text-muted-foreground truncate max-w-[300px]">
+                    <Button variant="outline" size="sm" as-child class="hover:bg-primary/10 hover:text-primary">
+                      <a :href="file.txt_url" download>Descargar .txt</a>
+                    </Button>
                     {{ file.content }}
                   </TableCell>
                   <TableCell>

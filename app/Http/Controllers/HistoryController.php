@@ -6,30 +6,42 @@ use App\Http\Requests\HistoryRequest;
 use App\Models\Encriptados;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth; 
+
+
+
 
 class HistoryController extends Controller
 {
     public function getHistory(HistoryRequest $request)
-    {
-        $inputs = $request->validated();
+{
+    $inputs = $request->validated();
 
-        $data = Encriptados::select('user_id', 'content', 'created_at')
-                            ->paginate($inputs["perPage"]);
-
-        return response()->json($data);
+    $query = Encriptados::select('id', 'user_id', 'content', 'created_at')
+                ->where('user_id', Auth::id());
+    Log::debug($request->query('search'));
+    if (!empty($request->query('search'))) {
+        $query->where('content', 'like', '%' . $request->query('search') . '%');
     }
+
+    $data = $query->orderBy('created_at', 'desc')
+                  ->paginate($inputs['perPage'] ?? 10);
+
+    return response()->json($data);
+}
 
     public function index(Request $request)
     {
         $perPage = (int) $request->query('perPage', 10);
         $page = (int) $request->query('page', 1);
 
-        $data = Encriptados::select('user_id', 'content', 'created_at')
+        $data = Encriptados::select('id', 'user_id', 'content', 'created_at')
+                            ->where('user_id', Auth::id())
                             ->orderBy('created_at', 'desc')
                             ->paginate($perPage, ['*'], 'page', $page)
                             ->appends(['perPage' => $perPage]);
 
-        //Aquí mandamos los datos al componente Vue
         return Inertia::render('Historial', [
             'data' => $data,
             'perPage' => $perPage,
@@ -43,11 +55,35 @@ class HistoryController extends Controller
             abort(404);
         }
 
+        // Verificar que el registro pertenezca al usuario autenticado
+        if ($record->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         $key = $record->key;
         $filename = "key_{$record->id}.key";
 
         return response()->streamDownload(function() use ($key) {
             echo $key;
+        }, $filename, [
+            'Content-Type' => 'application/octet-stream',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+
+    public function downloadContent($id)
+    {
+        Log::debug($id);
+        $record = Encriptados::find($id);
+        if (! $record) {
+            abort(404);
+        }
+
+        $content = $record->content;
+        $filename = "encriptado_{$record->id}.txt";
+
+        return response()->streamDownload(function() use ($content) {
+            echo $content;
         }, $filename, [
             'Content-Type' => 'application/octet-stream',
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
