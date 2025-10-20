@@ -1,18 +1,30 @@
-FROM composer:2.7 AS vendor
-WORKDIR /app
-COPY database/ database/
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
+FROM php:8.3-fpm-alpine AS builder
 
-FROM node:20-alpine AS frontend
+RUN apk add --no-cache \
+        composer \
+        nodejs \
+        npm \
+        libzip-dev \
+        libpng-dev \
+        jpeg-dev \
+        freetype-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql zip gd exif
+
 WORKDIR /app
-ARG VITE_APP_URL
-COPY package.json package-lock.json ./
-RUN npm install
+
 COPY . .
+
+RUN composer install --no-dev --no-interaction --optimize-autoloader
+
+ARG VITE_APP_URL
+RUN npm install
 RUN VITE_APP_URL=${VITE_APP_URL} npm run build
 
+RUN rm -rf node_modules
+
 FROM php:8.3-fpm-alpine
+
 WORKDIR /var/www/html
 
 RUN apk add --no-cache \
@@ -23,10 +35,7 @@ RUN apk add --no-cache \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql zip gd exif
 
-COPY . .
-
-COPY --from=vendor /app/vendor/ /var/www/html/vendor/
-COPY --from=frontend /app/public/build/ /var/www/html/public/build/
+COPY --from=builder /app /var/www/html
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
