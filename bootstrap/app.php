@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'encriptar',
             'desencriptar',
+            'desencriptar/download',
         ]);
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);

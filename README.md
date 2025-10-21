@@ -4,6 +4,10 @@ Software de Encriptado y Desencriptado de Archivos de Texto
 
 -------------------------------------------------------------
 
+
+> [!WARNING] Esta es una práctica académica y no debe ser utilizado para fines de seguridad en entornos críticos.
+> [!IMPORTANT] Este archivo es la explicación técnica del proyecto UNICRIPTER. Si deseas obtener una guía para correr el proyecto en tu máquina local, visita [Guía de Despliegue](DEPLOY.md):
+
 📖 Introducción
 
 El presente proyecto titulado “UNICRIPTER” fue desarrollado con el propósito de implementar un sistema web que permita encriptar y desencriptar archivos de texto (.txt) de forma segura, sencilla y gratuita.

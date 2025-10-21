@@ -98,18 +98,6 @@ const paginatedData = computed(() => archivos.value)
   <AppLayout>
     <Head title="Mi Perfil" />
 
-<!-- Botón de cambio de tema -->
-<div class="flex justify-end px-4 pt-4">
-  <Button
-    variant="outline"
-    size="sm"
-    class="hover:bg-primary/10 hover:text-primary"
-    @click="toggleTheme"
-  >
-    {{ theme === 'light' ? '🌜' : '☀️' }}
-  </Button>
-</div>
-
     <div class="container mx-auto py-8 space-y-6">
       <!-- Perfil -->
       <Card class="shadow-md border-primary/10 bg-gradient-to-br from-background to-primary/5">
