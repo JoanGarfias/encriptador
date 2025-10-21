@@ -167,6 +167,7 @@ const isDraggingKey = ref(false);
 const handleTxtDrop = (event: DragEvent) => {
   event.preventDefault();
   isDraggingTxt.value = false;
+  const file = event.dataTransfer?.files?.[0];
   if (file && file.name.endsWith('.txt')) decryptFile.value = file;
   else toast.error('Archivo no válido', { description: 'Por favor, selecciona un archivo .txt' });
 };
@@ -174,6 +175,7 @@ const handleTxtDrop = (event: DragEvent) => {
 const handleKeyDrop = (event: DragEvent) => {
   event.preventDefault();
   isDraggingKey.value = false;
+  const file = event.dataTransfer?.files?.[0];
   if (file && file.name.endsWith('.key')) keyFile.value = file;
   else toast.error('Archivo no válido', { description: 'Por favor, selecciona un archivo .key' });
 };
