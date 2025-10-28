@@ -2,6 +2,10 @@
 
 Software de Encriptado y Desencriptado de Archivos de Texto
 
+<img width="1888" height="917" alt="image" src="https://github.com/user-attachments/assets/05098b8f-fadb-4e4f-a57b-05bade747021" />
+
+
+
 -------------------------------------------------------------
 
 
